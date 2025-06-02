@@ -1,0 +1,40 @@
+@MonApiBackend_HostAddress = http://localhost:5028
+
+// Register
+POST {{MonApiBackend_HostAddress}}/register
+Accept: application/json
+Content-Type: application/json
+
+
+POST {{MonApiBackend_HostAddress}}/login
+Accept: application/json
+Content-Type: application/json
+
+POST {{MonApiBackend_HostAddress}}/create-post
+Accept: application/json
+Content-Type: application/json
+
+POST {{MonApiBackend_HostAddress}}/delete-post  
+Accept: application/json
+Content-Type: application/json
+
+POST {{MonApiBackend_HostAddress}}/create-comment
+Accept: application/json
+Content-Type: application/json
+
+POST {{MonApiBackend_HostAddress}}/create-reply
+Accept: application/json
+Content-Type: application/json
+
+POST {{MonApiBackend_HostAddress}}/upvote
+Accept: application/json
+Content-Type: application/json
+
+POST {{MonApiBackend_HostAddress}}/downvote
+Accept: application/json
+Content-Type: application/json
+
+
+
+
+###
