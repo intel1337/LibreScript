@@ -1,50 +1,35 @@
-# MonApiBackend API
+# LibreScript
 
-This is the API for MonApiBackend.
+## 🧪 Introduction
 
-## API Endpoints
+**LibreScript** est un projet d'initiation aux backends .NET, conçu pour illustrer la création d'une API RESTful en C# avec ASP.NET Core. Il comprend une structure de base pour la gestion des utilisateurs, l'authentification et la gestion de publications, offrant ainsi une base solide pour des applications web modernes.
 
-### User
-*   **GET /api/User/get-user/{id}**
-    *   Retrieves a user by their ID.
-    *   Parameters:
-        *   `id` (integer): The ID of the user.
-*   **GET /api/User/get-user/{username}**
-    *   Retrieves a user by their username.
-    *   Parameters:
-        *   `username` (string): The username of the user.
-*   **POST /api/User/register**
-    *   Registers a new user.
-*   **POST /api/User/login**
-    *   Logs in an existing user.
+## 📂 Structure du projet
 
-### Post
-*   The `PostController` currently has no defined endpoints.
+- **MonApiBackend** : Contient l'API principale avec les contrôleurs et modèles.
+- **Projet Fin d'année c#.sln** : Solution Visual Studio pour une gestion centralisée du projet.
 
-## Models
+## 🔌 Endpoints API
 
-(Information about models will be added here once `Category.cs` and other model files are correctly placed and accessible.)
+### Utilisateur
 
-## How to Run
+- `GET /api/User/get-user/{id}` : Récupère un utilisateur par son ID.
+- `GET /api/User/get-user/{username}` : Récupère un utilisateur par son nom d'utilisateur.
+- `POST /api/User/register` : Enregistre un nouvel utilisateur.
+- `POST /api/User/login` : Connecte un utilisateur existant.
 
-(Instructions on how to run the API will be added here.)
+### Publication
 
-# Getting started : 
+- Le contrôleur `PostController` est actuellement vide et peut être développé pour gérer les publications.
 
-```
-git clone projet.git
+## 🧩 Modèles
 
-cd Projet
+Les modèles de données sont définis dans des fichiers tels que `Category.cs`. Ils sont utilisés pour structurer les données échangées via l'API.
 
-docker run --name pg-container -e POSTGRES_PASSWORD=mysecret -p 5432:5432 -d postgres
+## 🚀 Lancer le projet
 
-dotnet restore
+1. Clonez le dépôt :
 
-Or :
-
-dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL
-dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL.Design
-dotnet add package Microsoft.EntityFrameworkCore --version 9.0.5
-dotnet add package Microsoft.EntityFrameworkCore.Design
-
-```
+   ```bash
+   git clone https://github.com/intel1337/librescript.git
+   cd librescript
