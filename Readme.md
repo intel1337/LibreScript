@@ -11,7 +11,6 @@ LibreScript est une application web composée d’un backend ASP.NET Core (C#) e
   - **Controllers** : gèrent les routes HTTP, la logique métier et la validation des requêtes
   - **Models/Entities** : représentent les tables de la base de données
   - **DbContext** : centralise l’accès à la base de données
-
 ---
 ## Fonctionnalités principales
 - **Gestion des utilisateurs** :
