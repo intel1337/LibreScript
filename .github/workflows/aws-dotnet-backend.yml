@@ -24,11 +24,8 @@ jobs:
       - name: Publish
         run: dotnet publish -c Release -o ./publish
       - name: Zip publish folder
-        run: zip -r ../publish.zip ./
+        run: zip -r publish.zip ./
         working-directory: dotnetBackend/publish
-      - name: Move zip to dotnetBackend
-        run: mv ../publish.zip ./
-        working-directory: dotnetBackend
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
