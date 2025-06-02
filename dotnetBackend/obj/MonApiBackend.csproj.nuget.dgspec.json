@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/x1337/Desktop/Projet Fin d'année c#/dotnetBackend/MonApiBackend.csproj": {}
+    "/Users/x1337/Desktop/LibreScript/dotnetBackend/MonApiBackend.csproj": {}
   },
   "projects": {
-    "/Users/x1337/Desktop/Projet Fin d'année c#/dotnetBackend/MonApiBackend.csproj": {
+    "/Users/x1337/Desktop/LibreScript/dotnetBackend/MonApiBackend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/x1337/Desktop/Projet Fin d'année c#/dotnetBackend/MonApiBackend.csproj",
+        "projectUniqueName": "/Users/x1337/Desktop/LibreScript/dotnetBackend/MonApiBackend.csproj",
         "projectName": "MonApiBackend",
-        "projectPath": "/Users/x1337/Desktop/Projet Fin d'année c#/dotnetBackend/MonApiBackend.csproj",
+        "projectPath": "/Users/x1337/Desktop/LibreScript/dotnetBackend/MonApiBackend.csproj",
         "packagesPath": "/Users/x1337/.nuget/packages/",
-        "outputPath": "/Users/x1337/Desktop/Projet Fin d'année c#/dotnetBackend/obj/",
+        "outputPath": "/Users/x1337/Desktop/LibreScript/dotnetBackend/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/x1337/.nuget/NuGet/NuGet.Config"
