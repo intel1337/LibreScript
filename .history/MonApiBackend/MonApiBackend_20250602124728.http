@@ -1,8 +1,0 @@
-@MonApiBackend_HostAddress = http://localhost:5028
-
-GET {{MonApiBackend_HostAddress}}/weatherforecast/
-Accept: application/json
-
-POST{{{{MonApiBackend_HostAddress}}/register}}
-Accept: 
-###

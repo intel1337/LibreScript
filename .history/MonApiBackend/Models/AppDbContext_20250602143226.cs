@@ -1,3 +1,0 @@
-namespace MonApiBackend.Models;
-
-publi

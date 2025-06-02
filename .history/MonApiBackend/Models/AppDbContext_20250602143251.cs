@@ -1,4 +1,0 @@
-namespace MonApiBackend.Models;
-{
-    
-}
