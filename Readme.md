@@ -2,7 +2,7 @@
 
 ## Présentation
 LibreScript est une application web composée d’un backend ASP.NET Core (C#) et d’un frontend Svelte. Elle permet la gestion d’utilisateurs, de posts, de catégories et de commentaires, dans un style blog/forum moderne.
-
+---
 ## Architecture & Design Pattern
 - **Backend** : ASP.NET Core (C#), architecture RESTful, pattern MVC (Model-View-Controller)
 - **Frontend** : Svelte (Vite)
@@ -12,7 +12,7 @@ LibreScript est une application web composée d’un backend ASP.NET Core (C#) e
   - **Models/Entities** : représentent les tables de la base de données
   - **DbContext** : centralise l’accès à la base de données
 
-
+---
 ## Fonctionnalités principales
 - **Gestion des utilisateurs** :
   - Inscription, connexion (routes prêtes à être implémentées)
@@ -29,7 +29,7 @@ LibreScript est une application web composée d’un backend ASP.NET Core (C#) e
   - Association à un post et à un utilisateur
 - **CORS configuré** pour permettre l’accès au backend depuis le frontend local
 - **Configuration flexible** de la base de données via `appsettings.json`
-
+---
 ## Design technique
 - **Pattern MVC** :
   - Les contrôleurs exposent des routes REST (ex : `/api/post`, `/api/category`...)
@@ -37,7 +37,7 @@ LibreScript est une application web composée d’un backend ASP.NET Core (C#) e
   - Le DbContext gère les transactions et le suivi des entités
 - **Asynchrone** : la plupart des opérations sont asynchrones pour de meilleures performances
 - **Sécurité** : endpoints prêts pour l’ajout d’authentification/autorisation
-
+---
 ## Lancement du projet
 1. **Backend**
    - Configurer la base de données dans `appsettings.json` si besoin
@@ -53,13 +53,13 @@ LibreScript est une application web composée d’un backend ASP.NET Core (C#) e
      npm install
      npm run dev
      ```
-
+---
 ## Exemples de routes API
 - `GET /api/user/get-user/id/{id}` : récupérer un utilisateur par ID
 - `POST /api/post` : créer un post
 - `PUT /api/category/{id}` : modifier une catégorie
 - `DELETE /api/comment/{id}` : supprimer un commentaire
-
+---
 ## Pour aller plus loin
 - Ajouter l’authentification JWT
 - Ajouter la pagination, la recherche, le tri
