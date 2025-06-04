@@ -1,12 +1,22 @@
 <script>
-  // You can add imports for global styles or other layout logic here if needed
-  // import '../app.css'; // Example: if you have global styles in src/app.css
+  import Header from './Components/Header.svelte';
+  import { onMount } from 'svelte';
+  import { checkAuth } from '$lib/services/authService.js';
+  import { page } from '$app/stores';
+  import { get } from 'svelte/store';
+
+  onMount(() => {
+    const currentPath = get(page).url.pathname;
+    // Ne vérifie l'auth que si on n'est PAS sur /login ou /register
+    if (currentPath !== '/login' && currentPath !== '/register') {
+      checkAuth();
+    }
+  });
 </script>
 
 <div class="layout-container">
-  <header>
-    <!-- You can put a global header/navbar here -->
-  </header>
+    <Header />
+
 
   <main>
     <slot /> <!-- This is crucial for page content to render -->
@@ -18,11 +28,16 @@
 </div>
 
 <style>
+ 
   /* Optional: Add some basic styling for the layout itself */
   .layout-container {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    margin: 0;
+	padding: 0;
+
+
   }
 
   main {

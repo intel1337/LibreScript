@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MonApiBackend.Models.Context;
 using System.Text.Json.Serialization;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args); // Instancie le builder
 const string MyAllowSpecificOrigins = "_myAllowSpecificOrigins"; // Cors _ pour instance privée de la classe
@@ -8,15 +9,16 @@ const string MyAllowSpecificOrigins = "_myAllowSpecificOrigins"; // Cors _ pour 
 // Instancie le cors dans les services
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: MyAllowSpecificOrigins,
-            policy  =>
-            {
-                policy.WithOrigins("http://localhost:5173", 
-                                    "http://127.0.0.1:5173")  
-                    .AllowAnyHeader()
-                    .AllowAnyMethod();
-            });
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
 });
+
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication("Bearer").AddJwtBearer();
 
 // déclaration de la connection string, depuis les appsettings.json // Peut être null si non existente
 string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -43,8 +45,9 @@ var app = builder.Build();
 // On configure le routage
 app.UseRouting(); 
 // On configure le CORS
-app.UseCors(MyAllowSpecificOrigins); 
+app.UseCors("AllowAll");
 // On configure l'authentification
+
 app.UseAuthorization();
 
 // On configure les contrôleurs

@@ -24,7 +24,20 @@ namespace MonApiBackend.Controllers
         public IActionResult GetAllPosts()
         {
             var posts = _context.Posts.ToList(); // Récupère tous les posts
-            return Ok(posts); // Retourne la liste avec un code 200 OK
+            // On retourne les champs principaux + nouveaux champs
+            var result = posts.Select(p => new {
+                p.Id,
+                p.Title,
+                p.Content,
+                p.UserId,
+                p.Upvotes,
+                p.Downvotes,
+                p.Language,
+                p.Status,
+                p.Views,
+                p.CreatedAt
+            });
+            return Ok(result); // Retourne la liste avec un code 200 OK
         }
 
 
@@ -54,6 +67,12 @@ namespace MonApiBackend.Controllers
             if (user == null)
                 return BadRequest($"User with ID {post.UserId} not found."); // 400 si l'utilisateur n'existe pas
             post.User = user;
+            post.Upvotes = 0; // Initialise à 0
+            post.Downvotes = 0; // Initialise à 0
+            post.Views = 0; // Initialise à 0
+            post.Status = post.Status ?? "";
+            post.Language = post.Language ?? "";
+            post.CreatedAt = DateTime.UtcNow;
 
             _context.Posts.Add(post); // Ajoute le post à la base
             _context.SaveChanges(); // Sauvegarde les changements
@@ -76,6 +95,12 @@ namespace MonApiBackend.Controllers
 
             existingPost.Title = post.Title; // Met à jour le titre
             existingPost.Content = post.Content; // Met à jour le contenu
+            existingPost.Upvotes = post.Upvotes; // Met à jour les upvotes
+            existingPost.Downvotes = post.Downvotes; // Met à jour les downvotes
+            existingPost.Language = post.Language;
+            existingPost.Status = post.Status;
+            existingPost.Views = post.Views;
+            existingPost.CreatedAt = post.CreatedAt;
 
             var user = _context.Users.FirstOrDefault(u => u.Id == post.UserId); // Vérifie que l'utilisateur existe
             if (user == null)
@@ -84,6 +109,36 @@ namespace MonApiBackend.Controllers
 
             _context.SaveChanges(); // Sauvegarde les changements
             return NoContent(); // 204 si tout s'est bien passé
+        }
+
+
+
+        // Ajoute un upvote à un post
+        // Route: POST api/post/{id}/upvote
+        [HttpPost("{id:int}/upvote")]
+        public IActionResult UpvotePost(int id)
+        {
+            var post = _context.Posts.FirstOrDefault(p => p.Id == id);
+            if (post == null)
+                return NotFound($"Post with ID {id} not found.");
+            post.Upvotes++;
+            _context.SaveChanges();
+            return Ok(new { post.Id, post.Upvotes, post.Downvotes });
+        }
+
+
+
+        // Ajoute un downvote à un post
+        // Route: POST api/post/{id}/downvote
+        [HttpPost("{id:int}/downvote")]
+        public IActionResult DownvotePost(int id)
+        {
+            var post = _context.Posts.FirstOrDefault(p => p.Id == id);
+            if (post == null)
+                return NotFound($"Post with ID {id} not found.");
+            post.Downvotes++;
+            _context.SaveChanges();
+            return Ok(new { post.Id, post.Upvotes, post.Downvotes });
         }
 
 
@@ -100,6 +155,26 @@ namespace MonApiBackend.Controllers
             _context.Posts.Remove(post); // Supprime le post
             _context.SaveChanges(); // Sauvegarde
             return NoContent(); // 204 si suppression réussie
+        }
+        [HttpPost("{id:int}/upvote")] // Route pour l'upvote par ID
+        public IActionResult UpvotePostById(int id)
+        {
+            var post = _context.Posts.FirstOrDefault(p => p.Id == id); // Cherche le post par id
+            if (post == null)
+                return NotFound($"Post with ID {id} not found."); // 404 si non trouvé
+            post.Upvotes++; // Incrémente les upvotes
+            _context.SaveChanges(); // Sauvegarde les changements
+            return Ok(post); // Retourne le post mis à jour
+        }
+        [HttpPost("{id:int}/downvote")] // Route pour le downvote par ID
+        public IActionResult DownvotePostById(int id)
+        {
+            var post = _context.Posts.FirstOrDefault(p => p.Id == id); // Cherche le post par id
+            if (post == null)
+                return NotFound($"Post with ID {id} not found."); // 404 si non trouvé
+            post.Downvotes++; // Incrémente les downvotes
+            _context.SaveChanges(); // Sauvegarde les changements
+            return Ok(post); // Retourne le post mis à jour
         }
     }
 }

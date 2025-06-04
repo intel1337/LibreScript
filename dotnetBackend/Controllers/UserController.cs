@@ -1,6 +1,11 @@
 using Microsoft.AspNetCore.Mvc; // Import du MVC pour les contrôleurs
 using MonApiBackend.Models.Context; // Import du contexte de la base de données
 using MonApiBackend.Models.Entities; // Import des entités métier
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.Extensions.Configuration; // Ajout pour IConfiguration
 
 namespace MonApiBackend.Controllers
 {
@@ -37,20 +42,102 @@ namespace MonApiBackend.Controllers
 
         // Inscription d'un nouvel utilisateur
         // Route: POST api/user/register/
-        [HttpPost("register/")]
-        public IActionResult Register()
+        [HttpPost("register")]
+        public IActionResult Register([FromBody] User user)
         {
-            // Ici, la logique d'inscription n'est pas implémentée, juste un message de test
-            return Ok("Hello from register!");
+            if (user == null)
+                return BadRequest("User data is required.");
+            if (_context.Users.Any(u => u.Username == user.Username))
+                return BadRequest("Username already exists.");
+            if (_context.Users.Any(u => u.Email == user.Email))
+                return BadRequest("Email already exists.");
+            user.CreatedAt = DateTime.UtcNow;
+            _context.Users.Add(user);
+            _context.SaveChanges();
+
+            // Récupération de la clé secrète depuis la config
+            var jwtKey = HttpContext.RequestServices.GetRequiredService<IConfiguration>().GetSection("Jwt:Key").Value;
+            var key = Encoding.ASCII.GetBytes(jwtKey);
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim(ClaimTypes.Email, user.Email)
+                }),
+                Expires = DateTime.UtcNow.AddDays(7),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var jwt = tokenHandler.WriteToken(token);
+
+            return Ok(new { token = jwt });
         }
 
-        // Connexion d'un utilisateur
+        // Connexion d'un utilisateur (retourne un JWT si ok)
         // Route: POST api/user/login/
         [HttpPost("login/")]
-        public IActionResult Login()
+        public IActionResult Login([FromBody] User login)
         {
-            // Ici, la logique de connexion n'est pas implémentée, juste un message de test
-            return Ok("Hello from login!");
+            if (login == null)
+                return BadRequest("User data is required.");
+            var user = _context.Users.FirstOrDefault(u => u.Username == login.Username);
+            if (user == null || user.Password != login.Password)
+                return Unauthorized("Invalid username or password.");
+            // Génération du JWT
+            var jwtKey = HttpContext.RequestServices.GetRequiredService<IConfiguration>().GetSection("Jwt:Key").Value;
+            var key = Encoding.ASCII.GetBytes(jwtKey);
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim(ClaimTypes.Email, user.Email)
+                }),
+                Expires = DateTime.UtcNow.AddDays(7),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var jwt = tokenHandler.WriteToken(token);
+            return Ok(new { token = jwt });
+        }
+
+        // Vérifie le JWT envoyé par le front (depuis localStorage)
+        // Route: POST api/user/authenticate
+        [HttpPost("authenticate")]
+        public IActionResult Authenticate()
+        {
+            var authHeader = Request.Headers["Authorization"].FirstOrDefault();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                return Unauthorized("Missing or invalid Authorization header.");
+            var token = authHeader.Substring("Bearer ".Length).Trim();
+            var jwtKey = HttpContext.RequestServices.GetRequiredService<IConfiguration>().GetSection("Jwt:Key").Value;
+            var key = Encoding.ASCII.GetBytes(jwtKey);
+            var tokenHandler = new JwtSecurityTokenHandler();
+            try
+            {
+                tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ClockSkew = TimeSpan.Zero
+                }, out SecurityToken validatedToken);
+                var jwtToken = (JwtSecurityToken)validatedToken;
+                var userId = jwtToken.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value;
+                var username = jwtToken.Claims.First(x => x.Type == ClaimTypes.Name).Value;
+                var email = jwtToken.Claims.First(x => x.Type == ClaimTypes.Email).Value;
+                return Ok(new { userId, username, email });
+            }
+            catch
+            {
+                return Unauthorized("Invalid or expired token.");
+            }
         }
     }
 }
