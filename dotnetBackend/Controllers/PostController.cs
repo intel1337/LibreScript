@@ -23,6 +23,7 @@ namespace MonApiBackend.Controllers
         [HttpGet]
         public IActionResult GetAllPosts()
         {
+            // SQL équivalent : SELECT * FROM Posts;
             var posts = _context.Posts.ToList(); // Récupère tous les posts
             // On retourne les champs principaux + nouveaux champs
             var result = posts.Select(p => new {
@@ -47,6 +48,7 @@ namespace MonApiBackend.Controllers
         [HttpGet("{id:int}")]
         public IActionResult GetPostById(int id)
         {
+            // SQL équivalent : SELECT * FROM Posts WHERE Id = {id};
             var post = _context.Posts.FirstOrDefault(p => p.Id == id); // Cherche le post par id
             if (post == null)
                 return NotFound($"Post with ID {id} not found."); // 404 si non trouvé
@@ -63,6 +65,7 @@ namespace MonApiBackend.Controllers
             if (post == null)
                 return BadRequest("Post data is required."); // 400 si aucune donnée reçue
 
+            // SQL équivalent : SELECT * FROM Users WHERE Id = {post.UserId};
             var user = _context.Users.FirstOrDefault(u => u.Id == post.UserId); // Vérifie que l'utilisateur existe
             if (user == null)
                 return BadRequest($"User with ID {post.UserId} not found."); // 400 si l'utilisateur n'existe pas
@@ -74,6 +77,7 @@ namespace MonApiBackend.Controllers
             post.Language = post.Language ?? "";
             post.CreatedAt = DateTime.UtcNow;
 
+            // SQL équivalent : INSERT INTO Posts (Title, Content, UserId, Upvotes, Downvotes, Views, Status, Language, CreatedAt) VALUES (...);
             _context.Posts.Add(post); // Ajoute le post à la base
             _context.SaveChanges(); // Sauvegarde les changements
             return CreatedAtAction(nameof(GetPostById), new { id = post.Id }, post); // Retourne 201 Created avec l'URL du post
@@ -89,6 +93,7 @@ namespace MonApiBackend.Controllers
             if (post == null || id != post.Id)
                 return BadRequest("Post data is invalid."); // 400 si l'id ne correspond pas ou données invalides
 
+            // SQL équivalent : SELECT * FROM Posts WHERE Id = {id};
             var existingPost = _context.Posts.FirstOrDefault(p => p.Id == id); // Cherche le post existant
             if (existingPost == null)
                 return NotFound($"Post with ID {id} not found."); // 404 si non trouvé
@@ -102,11 +107,13 @@ namespace MonApiBackend.Controllers
             existingPost.Views = post.Views;
             existingPost.CreatedAt = post.CreatedAt;
 
+            // SQL équivalent : SELECT * FROM Users WHERE Id = {post.UserId};
             var user = _context.Users.FirstOrDefault(u => u.Id == post.UserId); // Vérifie que l'utilisateur existe
             if (user == null)
                 return BadRequest($"User with ID {post.UserId} not found."); // 400 si l'utilisateur n'existe pas
             existingPost.User = user;
 
+            // SQL équivalent : UPDATE Posts SET Title='{title}', Content='{content}', Upvotes={upvotes}, Downvotes={downvotes}, Language='{language}', Status='{status}', Views={views} WHERE Id = {id};
             _context.SaveChanges(); // Sauvegarde les changements
             return NoContent(); // 204 si tout s'est bien passé
         }
@@ -118,10 +125,12 @@ namespace MonApiBackend.Controllers
         [HttpPost("{id:int}/upvote")]
         public IActionResult UpvotePost(int id)
         {
+            // SQL équivalent : SELECT * FROM Posts WHERE Id = {id};
             var post = _context.Posts.FirstOrDefault(p => p.Id == id);
             if (post == null)
                 return NotFound($"Post with ID {id} not found.");
             post.Upvotes++;
+            // SQL équivalent : UPDATE Posts SET Upvotes = Upvotes + 1 WHERE Id = {id};
             _context.SaveChanges();
             return Ok(new { post.Id, post.Upvotes, post.Downvotes });
         }
@@ -133,10 +142,12 @@ namespace MonApiBackend.Controllers
         [HttpPost("{id:int}/downvote")]
         public IActionResult DownvotePost(int id)
         {
+            // SQL équivalent : SELECT * FROM Posts WHERE Id = {id};
             var post = _context.Posts.FirstOrDefault(p => p.Id == id);
             if (post == null)
                 return NotFound($"Post with ID {id} not found.");
             post.Downvotes++;
+            // SQL équivalent : UPDATE Posts SET Downvotes = Downvotes + 1 WHERE Id = {id};
             _context.SaveChanges();
             return Ok(new { post.Id, post.Upvotes, post.Downvotes });
         }
@@ -148,10 +159,12 @@ namespace MonApiBackend.Controllers
         [HttpDelete("{id:int}")]
         public IActionResult DeletePost(int id)
         {
+            // SQL équivalent : SELECT * FROM Posts WHERE Id = {id};
             var post = _context.Posts.FirstOrDefault(p => p.Id == id); // Cherche le post
             if (post == null)
                 return NotFound($"Post with ID {id} not found."); // 404 si non trouvé
 
+            // SQL équivalent : DELETE FROM Posts WHERE Id = {id};
             _context.Posts.Remove(post); // Supprime le post
             _context.SaveChanges(); // Sauvegarde
             return NoContent(); // 204 si suppression réussie
@@ -159,20 +172,24 @@ namespace MonApiBackend.Controllers
         [HttpPost("{id:int}/upvote")] // Route pour l'upvote par ID
         public IActionResult UpvotePostById(int id)
         {
+            // SQL équivalent : SELECT * FROM Posts WHERE Id = {id};
             var post = _context.Posts.FirstOrDefault(p => p.Id == id); // Cherche le post par id
             if (post == null)
                 return NotFound($"Post with ID {id} not found."); // 404 si non trouvé
             post.Upvotes++; // Incrémente les upvotes
+            // SQL équivalent : UPDATE Posts SET Upvotes = Upvotes + 1 WHERE Id = {id};
             _context.SaveChanges(); // Sauvegarde les changements
             return Ok(post); // Retourne le post mis à jour
         }
         [HttpPost("{id:int}/downvote")] // Route pour le downvote par ID
         public IActionResult DownvotePostById(int id)
         {
+            // SQL équivalent : SELECT * FROM Posts WHERE Id = {id};
             var post = _context.Posts.FirstOrDefault(p => p.Id == id); // Cherche le post par id
             if (post == null)
                 return NotFound($"Post with ID {id} not found."); // 404 si non trouvé
             post.Downvotes++; // Incrémente les downvotes
+            // SQL équivalent : UPDATE Posts SET Downvotes = Downvotes + 1 WHERE Id = {id};
             _context.SaveChanges(); // Sauvegarde les changements
             return Ok(post); // Retourne le post mis à jour
         }

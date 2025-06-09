@@ -28,6 +28,7 @@ namespace MonApiBackend.Controllers
         [HttpGet] // précise pas la route car c'est la route de base
         public async Task<ActionResult<IEnumerable<Category>>> GetAllCategories()
         {
+            // SQL équivalent : SELECT * FROM Categories;
             var categories = await _context.Categories.ToListAsync(); // Récupère toutes les catégories
             return Ok(categories); // Retourne la liste avec un code 200 OK
         }
@@ -39,6 +40,7 @@ namespace MonApiBackend.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<Category>> GetCategoryById(int id)
         {
+            // SQL équivalent : SELECT * FROM Categories WHERE Id = {id};
             var category = await _context.Categories.FindAsync(id); // Cherche la catégorie par id
             if (category == null)
             {
@@ -59,6 +61,7 @@ namespace MonApiBackend.Controllers
                 return BadRequest("Category data is required."); // 400 si aucune donnée reçue
             }
 
+            // SQL équivalent : INSERT INTO Categories (Name, Description) VALUES ('{name}', '{description}');
             _context.Categories.Add(category); // Ajoute la catégorie à la base
             await _context.SaveChangesAsync(); // Sauvegarde les changements
 
@@ -78,6 +81,7 @@ namespace MonApiBackend.Controllers
                 return BadRequest("Category ID not matching."); // 400 si l'id ne correspond pas
             }
 
+            // SQL équivalent : UPDATE Categories SET Name='{name}', Description='{description}' WHERE Id = {id};
             _context.Entry(category).State = EntityState.Modified; // Marque la catégorie comme modifiée puis SaveChangesAsync sera appelée plus tard
 
             try
@@ -86,6 +90,7 @@ namespace MonApiBackend.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
+                // SQL équivalent : SELECT COUNT(*) FROM Categories WHERE Id = {id};
                 if (!_context.Categories.Any(e => e.Id == id)) // Vérifie si la catégorie existe
                 {
                     return NotFound($"Category with ID {id} not found."); // 404 si la catégorie n'existe pas
@@ -106,12 +111,14 @@ namespace MonApiBackend.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
+            // SQL équivalent : SELECT * FROM Categories WHERE Id = {id};
             var category = await _context.Categories.FindAsync(id); // Cherche la catégorie
             if (category == null)
             {
                 return NotFound($"Category with ID {id} not found."); // 404 si non trouvée
             }
 
+            // SQL équivalent : DELETE FROM Categories WHERE Id = {id};
             _context.Categories.Remove(category); // Supprime la catégorie
             await _context.SaveChangesAsync(); // Sauvegarde
 

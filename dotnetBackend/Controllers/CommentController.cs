@@ -28,6 +28,7 @@ namespace MonApiBackend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Comment>>> GetComments()
         {
+            // SQL équivalent : SELECT * FROM Comments;
             // Récupère tous les commentaires
             return await _context.Comments.ToListAsync();
         }
@@ -39,6 +40,7 @@ namespace MonApiBackend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Comment>> GetComment(int id)
         {
+            // SQL équivalent : SELECT * FROM Comments WHERE Id = {id};
             var comment = await _context.Comments.FindAsync(id); // Cherche le commentaire par id
             if (comment == null)
             {
@@ -56,6 +58,7 @@ namespace MonApiBackend.Controllers
         {
             // Ajoute la date de création
             comment.CreatedAt = System.DateTime.UtcNow;
+            // SQL équivalent : INSERT INTO Comments (Content, UserId, PostId, ParentCommentId, CreatedAt) VALUES (...);
             _context.Comments.Add(comment); // Ajoute le commentaire à la base
             await _context.SaveChangesAsync(); // Sauvegarde
             return CreatedAtAction(nameof(GetComment), new { id = comment.Id }, comment); // Retourne 201 Created
@@ -68,6 +71,7 @@ namespace MonApiBackend.Controllers
         [HttpPost("{parentId:int}/replies")]
         public async Task<ActionResult<Comment>> PostReply(int parentId, Comment reply)
         {
+            // SQL équivalent : SELECT * FROM Comments WHERE Id = {parentId};
             var parentComment = await _context.Comments.FindAsync(parentId); // Cherche le commentaire parent
             if (parentComment == null)
             {
@@ -76,6 +80,7 @@ namespace MonApiBackend.Controllers
             reply.ParentCommentId = parentId; // Lie la réponse au parent
             reply.PostId = parentComment.PostId; // Même post que le parent
             reply.CreatedAt = System.DateTime.UtcNow;
+            // SQL équivalent : INSERT INTO Comments (Content, UserId, PostId, ParentCommentId, CreatedAt) VALUES (...);
             _context.Comments.Add(reply); // Ajoute la réponse
             await _context.SaveChangesAsync(); // Sauvegarde
             return CreatedAtAction(nameof(GetComment), new { id = reply.Id }, reply); // Retourne 201 Created
@@ -88,11 +93,13 @@ namespace MonApiBackend.Controllers
         [HttpGet("{parentId:int}/replies")]
         public async Task<ActionResult<IEnumerable<Comment>>> GetRepliesForComment(int parentId)
         {
+            // SQL équivalent : SELECT COUNT(*) FROM Comments WHERE Id = {parentId};
             var parentCommentExists = await _context.Comments.AnyAsync(c => c.Id == parentId); // Vérifie que le parent existe
             if (!parentCommentExists)
             {
                 return NotFound($"Parent comment with ID {parentId} not found."); // 404 si parent non trouvé
             }
+            // SQL équivalent : SELECT * FROM Comments WHERE ParentCommentId = {parentId};
             var replies = await _context.Comments
                                       .Where(c => c.ParentCommentId == parentId)
                                       .ToListAsync(); // Récupère les réponses
@@ -110,6 +117,7 @@ namespace MonApiBackend.Controllers
             {
                 return BadRequest(); // 400 si l'id ne correspond pas
             }
+            // SQL équivalent : UPDATE Comments SET Content='{content}', UserId={userId}, PostId={postId}, ParentCommentId={parentCommentId} WHERE Id = {id};
             _context.Entry(comment).State = EntityState.Modified; // Marque comme modifié
             try
             {
@@ -136,11 +144,13 @@ namespace MonApiBackend.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteComment(int id)
         {
+            // SQL équivalent : SELECT * FROM Comments WHERE Id = {id};
             var comment = await _context.Comments.FindAsync(id); // Cherche le commentaire
             if (comment == null)
             {
                 return NotFound(); // 404 si non trouvé
             }
+            // SQL équivalent : DELETE FROM Comments WHERE Id = {id};
             _context.Comments.Remove(comment); // Supprime le commentaire
             await _context.SaveChangesAsync(); // Sauvegarde
             return NoContent(); // 204 si suppression réussie
@@ -149,6 +159,7 @@ namespace MonApiBackend.Controllers
         // Vérifie si un commentaire existe (méthode privée)
         private bool CommentExists(int id)
         {
+            // SQL équivalent : SELECT COUNT(*) FROM Comments WHERE Id = {id};
             return _context.Comments.Any(e => e.Id == id);
         }
     }

@@ -27,6 +27,7 @@ namespace MonApiBackend.Controllers
         [HttpGet("get-user/id/{id:int}")]
         public IActionResult GetUserById(int id)
         {
+            // SQL équivalent : SELECT * FROM Users WHERE Id = {id};
             var result = _context.Users.FirstOrDefault(u => u.Id == id); // Cherche l'utilisateur par id
             return Ok(result); // Retourne l'utilisateur (ou null si non trouvé)
         }
@@ -47,11 +48,14 @@ namespace MonApiBackend.Controllers
         {
             if (user == null)
                 return BadRequest("User data is required.");
+            // SQL équivalent : SELECT COUNT(*) FROM Users WHERE Username = '{username}';
             if (_context.Users.Any(u => u.Username == user.Username))
                 return BadRequest("Username already exists.");
+            // SQL équivalent : SELECT COUNT(*) FROM Users WHERE Email = '{email}';
             if (_context.Users.Any(u => u.Email == user.Email))
                 return BadRequest("Email already exists.");
             user.CreatedAt = DateTime.UtcNow;
+            // SQL équivalent : INSERT INTO Users (Username, Email, Password, CreatedAt) VALUES ('{username}', '{email}', '{password}', '{createdAt}');
             _context.Users.Add(user);
             _context.SaveChanges();
 
@@ -83,6 +87,7 @@ namespace MonApiBackend.Controllers
         {
             if (login == null)
                 return BadRequest("User data is required.");
+            // SQL équivalent : SELECT * FROM Users WHERE Username = '{username}';
             var user = _context.Users.FirstOrDefault(u => u.Username == login.Username);
             if (user == null || user.Password != login.Password)
                 return Unauthorized("Invalid username or password.");
