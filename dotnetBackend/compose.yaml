@@ -1,0 +1,19 @@
+services:
+  csharp-monapibackend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: csharp-monapibackend
+    restart: unless-stopped
+    init: true
+    ports:
+      - "80:80"  # Exposes the default ASP.NET port
+    # env_file: ./.env  # Uncomment if .env file exists
+    networks:
+      - backend
+    # If your app requires a database or other services, add them below and update connection strings accordingly
+
+# Define a custom network for backend communication
+networks:
+  backend:
+    driver: bridge

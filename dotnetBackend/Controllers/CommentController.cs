@@ -5,6 +5,7 @@ using System.Collections.Generic; // Pour les collections génériques
 using System.Linq; // Pour les requêtes LINQ
 using System.Threading.Tasks; // Pour l'asynchrone
 using Microsoft.EntityFrameworkCore; // Pour l'ORM Entity Framework Core
+using System.Text.Json; // Pour JSON parsing
 
 namespace MonApiBackend.Controllers
 {
@@ -54,14 +55,33 @@ namespace MonApiBackend.Controllers
         // Crée un nouveau commentaire
         // Route: POST api/comment
         [HttpPost]
-        public async Task<ActionResult<Comment>> PostComment(Comment comment)
+        public async Task<ActionResult<Comment>> PostComment([FromBody] JsonElement commentData)
         {
-            // Ajoute la date de création
-            comment.CreatedAt = System.DateTime.UtcNow;
-            // SQL équivalent : INSERT INTO Comments (Content, UserId, PostId, ParentCommentId, CreatedAt) VALUES (...);
-            _context.Comments.Add(comment); // Ajoute le commentaire à la base
-            await _context.SaveChangesAsync(); // Sauvegarde
-            return CreatedAtAction(nameof(GetComment), new { id = comment.Id }, comment); // Retourne 201 Created
+            try
+            {
+                // Extract data from the JSON element
+                string content = commentData.GetProperty("content").GetString();
+                int postId = commentData.GetProperty("postId").GetInt32();
+                int userId = commentData.GetProperty("userId").GetInt32();
+                
+                // Create a new comment with only the required fields
+                var comment = new Comment
+                {
+                    Content = content,
+                    PostId = postId,
+                    UserId = userId,
+                    CreatedAt = System.DateTime.UtcNow
+                };
+                
+                // SQL équivalent : INSERT INTO Comments (Content, UserId, PostId, CreatedAt) VALUES (...);
+                _context.Comments.Add(comment); // Ajoute le commentaire à la base
+                await _context.SaveChangesAsync(); // Sauvegarde
+                return CreatedAtAction(nameof(GetComment), new { id = comment.Id }, comment); // Retourne 201 Created
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error creating comment: {ex.Message}");
+            }
         }
 
 
@@ -69,21 +89,40 @@ namespace MonApiBackend.Controllers
         // Crée une réponse à un commentaire (reply)
         // Route: POST api/comment/{parentId}/replies
         [HttpPost("{parentId:int}/replies")]
-        public async Task<ActionResult<Comment>> PostReply(int parentId, Comment reply)
+        public async Task<ActionResult<Comment>> PostReply(int parentId, [FromBody] JsonElement replyData)
         {
-            // SQL équivalent : SELECT * FROM Comments WHERE Id = {parentId};
-            var parentComment = await _context.Comments.FindAsync(parentId); // Cherche le commentaire parent
-            if (parentComment == null)
+            try
             {
-                return NotFound($"Parent comment with ID {parentId} not found."); // 404 si parent non trouvé
+                // SQL équivalent : SELECT * FROM Comments WHERE Id = {parentId};
+                var parentComment = await _context.Comments.FindAsync(parentId); // Cherche le commentaire parent
+                if (parentComment == null)
+                {
+                    return NotFound($"Parent comment with ID {parentId} not found."); // 404 si parent non trouvé
+                }
+                
+                // Extract data from the JSON element
+                string content = replyData.GetProperty("content").GetString();
+                int userId = replyData.GetProperty("userId").GetInt32();
+                
+                // Create a new reply with only the required fields
+                var reply = new Comment
+                {
+                    Content = content,
+                    UserId = userId,
+                    ParentCommentId = parentId,
+                    PostId = parentComment.PostId,
+                    CreatedAt = System.DateTime.UtcNow
+                };
+                
+                // SQL équivalent : INSERT INTO Comments (Content, UserId, PostId, ParentCommentId, CreatedAt) VALUES (...);
+                _context.Comments.Add(reply); // Ajoute la réponse
+                await _context.SaveChangesAsync(); // Sauvegarde
+                return CreatedAtAction(nameof(GetComment), new { id = reply.Id }, reply); // Retourne 201 Created
             }
-            reply.ParentCommentId = parentId; // Lie la réponse au parent
-            reply.PostId = parentComment.PostId; // Même post que le parent
-            reply.CreatedAt = System.DateTime.UtcNow;
-            // SQL équivalent : INSERT INTO Comments (Content, UserId, PostId, ParentCommentId, CreatedAt) VALUES (...);
-            _context.Comments.Add(reply); // Ajoute la réponse
-            await _context.SaveChangesAsync(); // Sauvegarde
-            return CreatedAtAction(nameof(GetComment), new { id = reply.Id }, reply); // Retourne 201 Created
+            catch (Exception ex)
+            {
+                return BadRequest($"Error creating reply: {ex.Message}");
+            }
         }
 
 

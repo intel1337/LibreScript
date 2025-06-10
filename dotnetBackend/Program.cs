@@ -42,12 +42,14 @@ builder.Services.AddControllers()
 
 // Déclaration de l'application
 var app = builder.Build();
+
+// On configure le CORS en premier pour gérer les requêtes preflight
+app.UseCors("AllowAll");
+
 // On configure le routage
 app.UseRouting(); 
-// On configure le CORS
-app.UseCors("AllowAll");
-// On configure l'authentification
 
+// On configure l'authentification
 app.UseAuthorization();
 
 // On configure les contrôleurs

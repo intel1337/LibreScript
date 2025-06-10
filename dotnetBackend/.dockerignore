@@ -1,0 +1,75 @@
+# .dockerignore for C# (.NET) project with some Python scripts
+# 1. Version control
+.git/
+.gitignore
+.svn/
+.hg/
+
+# 2. IDE/editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 3. Build outputs and intermediate files
+bin/
+obj/
+dist/
+build/
+out/
+debug/
+
+# 4. Python cache and test artifacts
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.coverage
+
+# 5. Environment and secrets
+.env*
+*.env
+*.pem
+*.key
+*.crt
+config.local.*
+*.local.yml
+
+# 6. Documentation and markdown
+README*
+*.md
+docs/
+
+# 7. Docker and Compose files (do NOT ignore Dockerfile itself)
+# (Keep Dockerfile, ignore other docker-related files)
+.dockerignore
+compose.yaml
+docker-compose*
+
+# 8. Temporary and local development files
+tmp/
+temp/
+*.tmp
+.local/
+local/
+
+# 9. Miscellaneous
+*.log
+
+# 10. Project-specific: test files and scripts
+# (No test/ or tests/ directories detected, but include as precaution)
+test/
+tests/
+
+# 11. Node.js, Go, Java (not detected, but add common patterns for safety)
+node_modules/
+npm-debug.log
+yarn-debug.log
+/vendor/
+*.test
+.go-cache
+target/
+*.class
+.gradle/
+
+# End of .dockerignore

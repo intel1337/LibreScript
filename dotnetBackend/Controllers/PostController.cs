@@ -169,29 +169,5 @@ namespace MonApiBackend.Controllers
             _context.SaveChanges(); // Sauvegarde
             return NoContent(); // 204 si suppression réussie
         }
-        [HttpPost("{id:int}/upvote")] // Route pour l'upvote par ID
-        public IActionResult UpvotePostById(int id)
-        {
-            // SQL équivalent : SELECT * FROM Posts WHERE Id = {id};
-            var post = _context.Posts.FirstOrDefault(p => p.Id == id); // Cherche le post par id
-            if (post == null)
-                return NotFound($"Post with ID {id} not found."); // 404 si non trouvé
-            post.Upvotes++; // Incrémente les upvotes
-            // SQL équivalent : UPDATE Posts SET Upvotes = Upvotes + 1 WHERE Id = {id};
-            _context.SaveChanges(); // Sauvegarde les changements
-            return Ok(post); // Retourne le post mis à jour
-        }
-        [HttpPost("{id:int}/downvote")] // Route pour le downvote par ID
-        public IActionResult DownvotePostById(int id)
-        {
-            // SQL équivalent : SELECT * FROM Posts WHERE Id = {id};
-            var post = _context.Posts.FirstOrDefault(p => p.Id == id); // Cherche le post par id
-            if (post == null)
-                return NotFound($"Post with ID {id} not found."); // 404 si non trouvé
-            post.Downvotes++; // Incrémente les downvotes
-            // SQL équivalent : UPDATE Posts SET Downvotes = Downvotes + 1 WHERE Id = {id};
-            _context.SaveChanges(); // Sauvegarde les changements
-            return Ok(post); // Retourne le post mis à jour
-        }
     }
 }
