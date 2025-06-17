@@ -2,12 +2,12 @@
   import Questions from './Components/Questions.svelte';
   import "../app.css";
   import {onMount} from 'svelte';
-  import {getTags} from '$lib/services/tagService.js';
-    import { checkAuth } from '$lib/services/authService';
-    
-
+  import { triggerPostsRefresh } from '$lib/stores/postStore.js';
+  
+  onMount(() => {
+    triggerPostsRefresh();
+  });
 </script>
-
 
 <section>
   <Questions />

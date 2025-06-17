@@ -18,8 +18,7 @@ namespace MonApiBackend.Models.Entities
         public Post? Post { get; set; }  // Post auquel le commentaire est associé (nullable et ignoré en JSON)
 
         public int UserId { get; set; } // ID de l'utilisateur qui a créé le commentaire
-        [JsonIgnore]
-        public User? User { get; set; }  // Utilisateur qui a créé le commentaire (nullable et ignoré en JSON)
+        public User? User { get; set; }  // Utilisateur qui a créé le commentaire (nullable)
 
         public int? ParentCommentId { get; set; } // ID du commentaire parent si c'est une réponse à un autre commentaire
         [JsonIgnore]

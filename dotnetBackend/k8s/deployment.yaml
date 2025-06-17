@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monapi-backend
+  labels:
+    app: monapi-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: monapi-backend
+  template:
+    metadata:
+      labels:
+        app: monapi-backend
+    spec:
+      containers:
+      - name: monapi-backend
+        image: monapi-backend:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 80
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Production"
+        - name: ConnectionStrings__DefaultConnection
+          value: "Host=postgres;Database=monapi;Username=postgres;Password=your_password"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: monapi-backend
+spec:
+  selector:
+    app: monapi-backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: NodePort 

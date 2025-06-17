@@ -2,6 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using MonApiBackend.Models.Context;
 using System.Text.Json.Serialization;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args); // Instancie le builder
 const string MyAllowSpecificOrigins = "_myAllowSpecificOrigins"; // Cors _ pour instance privée de la classe
@@ -17,8 +20,36 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Configure JWT Authentication
+var jwtKey = builder.Configuration.GetSection("Jwt:Key").Value;
+if (string.IsNullOrEmpty(jwtKey))
+{
+    throw new InvalidOperationException("JWT Key not found in configuration");
+}
+
+var key = Encoding.ASCII.GetBytes(jwtKey);
+
+builder.Services.AddAuthentication(x =>
+{
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(x =>
+{
+    x.RequireHttpsMetadata = false;
+    x.SaveToken = true;
+    x.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
 builder.Services.AddAuthorization();
-builder.Services.AddAuthentication("Bearer").AddJwtBearer();
 
 // déclaration de la connection string, depuis les appsettings.json // Peut être null si non existente
 string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -49,7 +80,8 @@ app.UseCors("AllowAll");
 // On configure le routage
 app.UseRouting(); 
 
-// On configure l'authentification
+// On configure l'authentification (ordre important!)
+app.UseAuthentication();
 app.UseAuthorization();
 
 // On configure les contrôleurs

@@ -9,9 +9,11 @@
         DropdownDivider,
     } from "flowbite-svelte";
     import { DotsHorizontalOutline, DotsVerticalOutline } from "flowbite-svelte-icons";
-    import { isLoggedIn } from "$lib/services/loginService.js";
+    import { isLoggedIn, getCurrentUser, logout } from "$lib/services/loginService.js";
+    
     let showMenu = false;
     let loggedIn = false;
+    let currentUser = null;
 
     // Ferme le menu si on clique ailleurs
     function handleClickOutside(event) {
@@ -20,14 +22,42 @@
         }
     }
 
-    function toggleMenu() {
-        loggedIn = isLoggedIn(); // Vérifie à chaque ouverture
+    async function toggleMenu() {
+        // Check authentication status when opening menu
+        await checkAuthStatus();
         showMenu = !showMenu;
     }
 
-    onMount(() => {
-        window.addEventListener('click', handleClickOutside);
+    async function checkAuthStatus() {
         loggedIn = isLoggedIn();
+        if (loggedIn) {
+            try {
+                currentUser = await getCurrentUser();
+                if (!currentUser) {
+                    loggedIn = false;
+                }
+            } catch (error) {
+                console.error('Error getting current user:', error);
+                loggedIn = false;
+                currentUser = null;
+            }
+        } else {
+            currentUser = null;
+        }
+    }
+
+    async function handleLogout() {
+        logout();
+        loggedIn = false;
+        currentUser = null;
+        showMenu = false;
+        // Optionally redirect to home or login
+        window.location.href = '/';
+    }
+
+    onMount(async () => {
+        window.addEventListener('click', handleClickOutside);
+        await checkAuthStatus();
         return () => window.removeEventListener('click', handleClickOutside);
     });
 </script>
@@ -50,7 +80,6 @@
                 />
             </li>
 
-
             <!-- Menu burger custom sans Flowbite -->
             <li class="burger-menu" style="position: relative;">
                 <button class="burger-btn" on:click={toggleMenu} aria-label="Ouvrir le menu">
@@ -62,12 +91,17 @@
                 </button>
                 {#if showMenu}
                     <ul class="burger-dropdown">
-                        {#if loggedIn}
+                        {#if loggedIn && currentUser}
+                            <li class="user-info">
+                                <strong>{currentUser.username}</strong>
+                                <span>{currentUser.email}</span>
+                            </li>
+                            <li class="divider"></li>
                             <li><a href="/dashboard">Dashboard</a></li>
                             <li><a href="/settings">Settings</a></li>
                             <li><a href="/earnings">Earnings</a></li>
                             <li class="divider"></li>
-                            <li><a href="/logout">Sign out</a></li>
+                            <li><button on:click={handleLogout} class="logout-btn">Sign out</button></li>
                         {:else}
                             <li><a href="/login">Login</a></li>
                             <li><a href="/register">Register</a></li>
@@ -75,14 +109,6 @@
                     </ul>
                 {/if}
             </li>
-            <!-- <li id="profile">
-                <a href="./profile"
-                    ><img
-                        src="https://img.freepik.com/premium-vector/man-avatar-profile-picture-vector-illustration_268834-538.jpg?semt=ais_hybrid&w=740"
-                        alt=""
-                    /></a
-                >
-            </li> -->
         </ul>
     </nav>
 </header>
@@ -93,9 +119,12 @@
     header {
         font-family: "Roboto";
         background-color: #f0f0f0;
-
         border-bottom: 1px solid #ccc;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        position: sticky;
+        top: 0;
+        z-index: 100;
     }
 
     nav ul {
@@ -103,7 +132,10 @@
         display: flex;
         gap: 1rem;
         align-items: center;
-        padding-right: 0.5rem; /* Ajouté pour éviter que le dernier item soit collé au bord */
+        padding: 0.5rem 1rem;
+        margin: 0;
+        justify-content: space-between;
+        flex-wrap: wrap;
     }
 
     nav ul li {
@@ -111,8 +143,8 @@
     }
 
     nav ul li img {
-        width: 24px; /* Adjust size as needed */
-        height: 24px; /* Adjust size as needed */
+        width: 24px;
+        height: 24px;
     }
 
     nav ul li a {
@@ -122,40 +154,38 @@
     nav ul li a:hover {
         text-decoration: underline;
     }
-    nav ul li img {
-        width: 24px; /* Adjust size as needed */
-        height: 24px; /* Adjust size as needed */
-    }
 
-    nav ul li a {
-        text-decoration: none;
-        color: #333;
-    }
     #rightside {
-        margin-left: auto; /* Pushes the right side items to the right */
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        margin: 0 1rem;
     }
+    
     #logo img {
-        width: 24px; /* Adjust size as needed */
-        height: 24px; /* Adjust size as needed */
+        width: 24px;
+        height: 24px;
     }
+    
     #notifications {
         display: flex;
         align-items: center;
         justify-content: center;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        border-radius: 50%; /* Makes the notification icon circular */
-        padding: 0.5rem; /* Adds some padding around the icon */
+        border-radius: 50%;
+        padding: 0.5rem;
         transition: 0.3s ease;
     }
+    
     #notifications:hover {
-        background-color: #e0e0e0; /* Changes background on hover */
-        cursor: pointer; /* Changes cursor to pointer on hover */
+        background-color: #e0e0e0;
+        cursor: pointer;
     }
+    
     #notifications img {
-        width: 24px; /* Adjust size as needed */
-        height: 24px; /* Adjust size as needed */
+        width: 24px;
+        height: 24px;
     }
-
 
     #logotext {
         font-size: 1.5rem;
@@ -195,33 +225,113 @@
         cursor: pointer;
         transition: background 0.15s;
     }
-    .burger-dropdown li:hover {
-        background: #f0f0f0;
+   
+    .burger-dropdown a {
+        color: #333;
+        text-decoration: none;
+        display: block;
+        width: 100%;
     }
-    .burger-dropdown .divider {
-        border-bottom: 1px solid #eee;
-        margin: 0.3rem 0;
-        height: 0;
+    
+    .user-info {
+        display: flex;
+        flex-direction: column;
+        padding: 0.75rem 1.2rem !important;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e0e0e0;
+        margin-bottom: 0.25rem;
+    }
+    
+    .user-info strong {
+        font-size: 0.95rem;
+        color: #0969da;
+        margin-bottom: 2px;
+    }
+    
+    .user-info span {
+        font-size: 0.8rem;
+        color: #666;
+    }
+    
+    .logout-btn {
+        background: none;
+        border: none;
+        color: #dc3545;
+        cursor: pointer;
+        text-align: left;
+        width: 100%;
         padding: 0;
+        font-size: inherit;
+        font-family: inherit;
+        transition: color 0.15s;
+    }
+    
+    .logout-btn:hover {
+        color: #c82333;
+        background: #f8f9fa;
+    }
+    
+    .divider {
+        height: 1px;
+        background: #e0e0e0;
+        margin: 0.5rem 0;
+        padding: 0 !important;
     }
 
-    .burger-menu {
-        /* Suppression de la marge droite qui décale le menu */
-        margin-right: 0;
+    /* Mobile responsive adjustments */
+    @media (max-width: 768px) {
+        nav ul {
+            padding: 0.5rem;
+            gap: 0.5rem;
+        }
+        
+        #logotext {
+            font-size: 1.2rem;
+        }
+        
+        #rightside {
+            margin: 0 0.5rem;
+        }
+        
+        nav ul li img {
+            width: 20px;
+            height: 20px;
+        }
+        
+        #notifications img {
+            width: 20px;
+            height: 20px;
+        }
     }
-    @media (max-width: 600px) {
-        .burger-menu {
-            margin-right: 0;
+
+    @media (max-width: 480px) {
+        nav ul {
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.25rem;
         }
+        
+        #logo, #logotext {
+            order: 1;
+        }
+        
+        #rightside {
+            order: 2;
+            width: 100%;
+            margin: 0.5rem 0;
+        }
+        
+        #notifications, .burger-menu {
+            order: 3;
+        }
+        
+        #logotext {
+            font-size: 1rem;
+        }
+        
         .burger-dropdown {
-            right: 0;
-            left: auto;
-            min-width: 140px;
-            max-width: 90vw;
-        }
-        .burger-btn img {
-            width: 36px;
-            height: 36px;
+            right: -50px;
+            min-width: 120px;
         }
     }
 </style>

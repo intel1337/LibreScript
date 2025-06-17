@@ -1,33 +1,29 @@
-# syntax=docker/dockerfile:1
-
-ARG DOTNET_VERSION=9.0
-
-FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} AS builder
+# Build stage
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-# Copy csproj and restore as distinct layers
-COPY --link MonApiBackend.csproj ./
-RUN --mount=type=cache,target=/root/.nuget/packages \
-    --mount=type=cache,target=/root/.cache/msbuild \
-    dotnet restore
+# Copy csproj and restore dependencies
+COPY ["MonApiBackend.csproj", "./"]
+RUN dotnet restore
 
-# Copy the rest of the source code
-COPY --link . .
+# Copy the rest of the code
+COPY . .
 
-# Publish the application
-RUN dotnet publish -c Release -o /app/publish --no-restore
+# Build and publish
+RUN dotnet build -c Release -o /app/build
+RUN dotnet publish -c Release -o /app/publish
 
-# Final image
-FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_VERSION} AS final
+# Runtime stage
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
+COPY --from=build /app/publish .
 
-# Create a non-root user
-RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
-USER appuser
+# Set environment variables
+ENV ASPNETCORE_URLS=http://+:80
+ENV ASPNETCORE_ENVIRONMENT=Production
 
-COPY --from=builder /app/publish .
-
-# Expose default ASP.NET port
+# Expose port 80
 EXPOSE 80
 
+# Start the application
 ENTRYPOINT ["dotnet", "MonApiBackend.dll"]

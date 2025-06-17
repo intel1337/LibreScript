@@ -131,17 +131,58 @@ namespace MonApiBackend.Controllers
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateIssuer = false,
                     ValidateAudience = false,
+                    ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero
                 }, out SecurityToken validatedToken);
                 var jwtToken = (JwtSecurityToken)validatedToken;
-                var userId = jwtToken.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value;
-                var username = jwtToken.Claims.First(x => x.Type == ClaimTypes.Name).Value;
-                var email = jwtToken.Claims.First(x => x.Type == ClaimTypes.Email).Value;
-                return Ok(new { userId, username, email });
+                
+                // Log all claims for debugging
+                Console.WriteLine("Token claims:");
+                foreach (var claim in jwtToken.Claims)
+                {
+                    Console.WriteLine($"Claim Type: {claim.Type}, Value: {claim.Value}");
+                }
+
+                try
+                {
+                    var userId = jwtToken.Claims.First(x => x.Type == "nameid").Value;
+                    var username = jwtToken.Claims.First(x => x.Type == "unique_name").Value;
+                    var email = jwtToken.Claims.First(x => x.Type == "email").Value;
+                    return Ok(new { userId, username, email });
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error finding claims: {ex.Message}");
+                    return Unauthorized($"Error finding claims: {ex.Message}");
+                }
             }
-            catch
+            catch (Exception ex)
             {
-                return Unauthorized("Invalid or expired token.");
+                return Unauthorized($"Invalid or expired token: {ex.Message}");
+            }
+        }
+
+        // Test endpoint to verify JWT configuration
+        // Route: GET api/user/test-jwt
+        [HttpGet("test-jwt")]
+        public IActionResult TestJwt()
+        {
+            try
+            {
+                var jwtKey = HttpContext.RequestServices.GetRequiredService<IConfiguration>().GetSection("Jwt:Key").Value;
+                if (string.IsNullOrEmpty(jwtKey))
+                {
+                    return BadRequest("JWT Key not found in configuration");
+                }
+                return Ok(new { 
+                    message = "JWT configuration is working", 
+                    keyLength = jwtKey.Length,
+                    keyExists = !string.IsNullOrEmpty(jwtKey)
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"JWT configuration error: {ex.Message}");
             }
         }
     }

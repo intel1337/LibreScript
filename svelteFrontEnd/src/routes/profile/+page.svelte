@@ -1,16 +1,9 @@
 <script>
- import { checkAuth } from '$lib/services/authService.js';
-
-  onMount(() => {
-    checkAuth(); // Vérifie le JWT à chaque chargement de layout
-  });
 </script>
 
-<section class="profile-page">
-    <h1>Profil utilisateur</h1>
-    <p>Bienvenue sur votre page de profil !</p>
-    <!-- Ajoute ici les infos du user, avatar, etc. -->
-</section>
+<div>
+    <p>Profil de l'utilisateur</p>
+</div>
 
 <style>
 .profile-page {

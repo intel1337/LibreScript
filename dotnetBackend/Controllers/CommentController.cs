@@ -30,8 +30,10 @@ namespace MonApiBackend.Controllers
         public async Task<ActionResult<IEnumerable<Comment>>> GetComments()
         {
             // SQL équivalent : SELECT * FROM Comments;
-            // Récupère tous les commentaires
-            return await _context.Comments.ToListAsync();
+            // Récupère tous les commentaires avec les informations de l'utilisateur
+            return await _context.Comments
+                .Include(c => c.User)
+                .ToListAsync();
         }
 
 
@@ -76,7 +78,13 @@ namespace MonApiBackend.Controllers
                 // SQL équivalent : INSERT INTO Comments (Content, UserId, PostId, CreatedAt) VALUES (...);
                 _context.Comments.Add(comment); // Ajoute le commentaire à la base
                 await _context.SaveChangesAsync(); // Sauvegarde
-                return CreatedAtAction(nameof(GetComment), new { id = comment.Id }, comment); // Retourne 201 Created
+                
+                // Récupérer le commentaire avec les informations de l'utilisateur
+                var createdComment = await _context.Comments
+                    .Include(c => c.User)
+                    .FirstOrDefaultAsync(c => c.Id == comment.Id);
+                
+                return CreatedAtAction(nameof(GetComment), new { id = comment.Id }, createdComment); // Retourne 201 Created
             }
             catch (Exception ex)
             {
@@ -100,11 +108,11 @@ namespace MonApiBackend.Controllers
                     return NotFound($"Parent comment with ID {parentId} not found."); // 404 si parent non trouvé
                 }
                 
-                // Extract data from the JSON element
+                // Prends la donnée du contenu et de l'id de l'utilisateur
                 string content = replyData.GetProperty("content").GetString();
                 int userId = replyData.GetProperty("userId").GetInt32();
                 
-                // Create a new reply with only the required fields
+                // Crée une nouvelle réponse avec les champs requis
                 var reply = new Comment
                 {
                     Content = content,
@@ -117,7 +125,13 @@ namespace MonApiBackend.Controllers
                 // SQL équivalent : INSERT INTO Comments (Content, UserId, PostId, ParentCommentId, CreatedAt) VALUES (...);
                 _context.Comments.Add(reply); // Ajoute la réponse
                 await _context.SaveChangesAsync(); // Sauvegarde
-                return CreatedAtAction(nameof(GetComment), new { id = reply.Id }, reply); // Retourne 201 Created
+                
+                // Récupérer la réponse avec les informations de l'utilisateur
+                var createdReply = await _context.Comments
+                    .Include(c => c.User)
+                    .FirstOrDefaultAsync(c => c.Id == reply.Id);
+                
+                return CreatedAtAction(nameof(GetComment), new { id = reply.Id }, createdReply); // Retourne 201 Created
             }
             catch (Exception ex)
             {
@@ -140,6 +154,7 @@ namespace MonApiBackend.Controllers
             }
             // SQL équivalent : SELECT * FROM Comments WHERE ParentCommentId = {parentId};
             var replies = await _context.Comments
+                                      .Include(c => c.User)
                                       .Where(c => c.ParentCommentId == parentId)
                                       .ToListAsync(); // Récupère les réponses
             return Ok(replies); // Retourne la liste

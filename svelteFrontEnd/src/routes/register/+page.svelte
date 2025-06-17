@@ -1,11 +1,7 @@
 <script>
 import { goto } from '$app/navigation';
-import { register } from '$lib/services/loginService.js';
-
-// Supprime le token à l'arrivée sur la page register (uniquement côté client)
-if (typeof window !== 'undefined') {
-    localStorage.removeItem('token');
-}
+import { register, getCurrentUser, isLoggedIn, logout } from '$lib/services/loginService.js';
+import { onMount } from 'svelte';
 
 let username = '';
 let password = '';
@@ -13,125 +9,385 @@ let fullName = '';
 let email = '';
 let error = '';
 let loading = false;
+let checking = true;
+
+onMount(async () => {
+    try {
+        if (isLoggedIn()) {
+            const user = await getCurrentUser();
+            if (user) {
+                console.log('User already logged in, redirecting to home');
+                goto('/');
+                return;
+            }
+        }
+    } catch (error) {
+        console.log('Error checking authentication status:', error);
+    } finally {
+        checking = false;
+    }
+});
 
 async function handleRegister(e) {
     e.preventDefault();
+    if (!username.trim() || !password.trim() || !fullName.trim() || !email.trim()) {
+        error = 'Veuillez remplir tous les champs.';
+        return;
+    }
+    
     error = '';
     loading = true;
-    const result = await register({ username, fullName, password, email });
-    if (result.token) {
-        localStorage.setItem('token', result.token);
-        goto('/');
-    } else {
-        error = result.error || 'Erreur inconnue.';
+    
+    try {
+        const result = await register({ username, fullName, password, email });
+        if (result.success) {
+            const user = await getCurrentUser();
+            if (user) {
+                console.log('Registration successful, redirecting to home');
+                goto('/');
+            } else {
+                error = 'Erreur de validation du token. Veuillez réessayer.';
+                logout();
+            }
+        } else {
+            error = result.error || 'Erreur d\'inscription inconnue.';
+        }
+    } catch (err) {
+        console.error('Registration error:', err);
+        error = 'Erreur d\'inscription. Veuillez réessayer.';
+    } finally {
+        loading = false;
     }
-    loading = false;
 }
 </script>
 
-<section class="login-page">
-    <h1>Inscription</h1>
-    <form on:submit|preventDefault={handleRegister}>
-        <div class="form-group">
-            <label for="username">Nom d'utilisateur</label>
-            <input id="username" type="text" bind:value={username} required autocomplete="username" />
+{#if checking}
+    <div class="checking-container">
+        <div class="spinner"></div>
+        <p>Vérification de la connexion...</p>
+    </div>
+{:else}
+    <section class="register-page">
+        <div class="register-container">
+            <div class="register-header">
+                <h1>Inscription</h1>
+                <p>Créez votre compte LibreScript</p>
+            </div>
+            
+            <form on:submit|preventDefault={handleRegister}>
+                <div class="form-group">
+                    <label for="fullName">Nom complet</label>
+                    <input 
+                        id="fullName" 
+                        type="text" 
+                        bind:value={fullName} 
+                        required 
+                        autocomplete="name"
+                        placeholder="Entrez votre nom complet"
+                        disabled={loading}
+                    />
+                </div>
+                
+                <div class="form-group">
+                    <label for="username">Nom d'utilisateur</label>
+                    <input 
+                        id="username" 
+                        type="text" 
+                        bind:value={username} 
+                        required 
+                        autocomplete="username"
+                        placeholder="Choisissez un nom d'utilisateur"
+                        disabled={loading}
+                    />
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input 
+                        id="email" 
+                        type="email" 
+                        bind:value={email} 
+                        required 
+                        autocomplete="email"
+                        placeholder="Entrez votre adresse email"
+                        disabled={loading}
+                    />
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <input 
+                        id="password" 
+                        type="password" 
+                        bind:value={password} 
+                        required 
+                        autocomplete="new-password"
+                        placeholder="Créez un mot de passe sécurisé"
+                        disabled={loading}
+                    />
+                </div>
+                
+                {#if error}
+                    <div class="error">{error}</div>
+                {/if}
+                
+                <button type="submit" disabled={loading || !username.trim() || !password.trim() || !fullName.trim() || !email.trim()}>
+                    {loading ? 'Inscription...' : 'S\'inscrire'}
+                </button>
+                
+                <div class="form-footer">
+                    <p>Déjà un compte ? <a href="/login">Se connecter</a></p>
+                </div>
+            </form>
         </div>
-        <div class="form-group">
-            <label for="fullName">Nom complet</label>
-            <input id="fullName" type="text" bind:value={fullName} required autocomplete="name" />
-        </div>
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input id="email" type="email" bind:value={email} required autocomplete="email" />
-        </div>
-        <div class="form-group">
-            <label for="password">Mot de passe</label>
-            <input id="password" type="password" bind:value={password} required autocomplete="new-password" />
-        </div>
-        {#if error}
-            <div class="error">{error}</div>
-        {/if}
-        <button type="submit" disabled={loading}>{loading ? 'Inscription...' : 'S\'inscrire'}</button>
-    </form>
-</section>
+    </section>
+{/if}
 
 <style>
-.login-page {
-    max-width: 400px;
-    margin: 3rem auto;
+.checking-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    color: white;
+    font-family: 'Inter', 'Roboto', Arial, sans-serif;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.register-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.register-container {
+    width: 100%;
+    max-width: 480px;
     background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
-    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    padding: 40px;
     text-align: center;
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Inter', 'Roboto', Arial, sans-serif;
+    box-sizing: border-box;
 }
-.login-page h1 {
-    font-size: 2rem;
-    margin-bottom: 1.5rem;
-    color: #333;
+
+.register-header {
+    margin-bottom: 32px;
 }
+
+.register-header h1 {
+    font-size: 2.25rem;
+    margin: 0 0 8px 0;
+    color: #212529;
+    font-weight: 700;
+}
+
+.register-header p {
+    font-size: 1rem;
+    color: #6c757d;
+    margin: 0;
+}
+
 form {
     display: flex;
     flex-direction: column;
-    gap: 1.2rem;
-    align-items: center; /* Ajouté pour centrer les inputs */
+    gap: 20px;
+    text-align: left;
 }
+
 .form-group {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Ajouté pour centrer le label + input */
-    width: 100%;
+    gap: 8px;
 }
+
 label {
-    font-weight: 500;
-    margin-bottom: 0.3rem;
-    color: #444;
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.95rem;
 }
+
 input[type="text"],
 input[type="password"],
 input[type="email"] {
     width: 100%;
-    max-width: 340px; /* Plus large */
     box-sizing: border-box;
-    padding: 0.9rem 1.2rem; /* Plus haut et plus large */
-    border: 1px solid #ccc;
-    border-radius: 10px; /* Plus arrondi */
-    font-size: 1.05rem;
-    background: #fafafa;
-    transition: border 0.2s;
-    margin: 0 auto;
+    padding: 14px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    font-size: 1rem;
+    background: #fff;
+    transition: all 0.2s ease;
+    font-family: inherit;
 }
+
 input:focus {
-    border: 1.5px solid #888;
+    border-color: #0969da;
     outline: none;
+    box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.1);
 }
+
+input::placeholder {
+    color: #adb5bd;
+}
+
 button[type="submit"] {
-    background: #333;
+    background: linear-gradient(135deg, #0969da 0%, #0850b3 100%);
     color: #fff;
     border: none;
-    border-radius: 12px; /* Plus arrondi */
-    padding: 0.9rem 0;
-    font-size: 1rem; /* Moins grand */
+    border-radius: 10px;
+    padding: 14px 0;
+    font-size: 1.05rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s ease;
     width: 100%;
-    max-width: 340px;
-    margin: 0 auto;
+    margin-top: 8px;
 }
+
 button[disabled] {
     opacity: 0.7;
     cursor: not-allowed;
+    transform: none;
 }
+
 button[type="submit"]:hover:not([disabled]) {
-    background: #222;
+    background: linear-gradient(135deg, #0850b3 0%, #0969da 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(9, 105, 218, 0.3);
 }
+
 .error {
-    color: #c00;
-    background: #ffeaea;
-    border-radius: 5px;
-    padding: 0.5rem 1rem;
-    font-size: 0.98rem;
+    color: #dc3545;
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.form-footer {
+    text-align: center;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+.form-footer p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.95rem;
+}
+
+.form-footer a {
+    color: #0969da;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.form-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Mobile Responsive Design */
+@media (max-width: 768px) {
+    .register-page {
+        padding: 15px;
+    }
+    
+    .register-container {
+        padding: 32px 24px;
+        max-width: 100%;
+    }
+    
+    .register-header h1 {
+        font-size: 2rem;
+    }
+    
+    .register-header p {
+        font-size: 0.95rem;
+    }
+    
+    input[type="text"],
+    input[type="password"],
+    input[type="email"] {
+        padding: 12px 14px;
+        font-size: 0.95rem;
+    }
+    
+    button[type="submit"] {
+        padding: 12px 0;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .register-page {
+        padding: 10px;
+    }
+    
+    .register-container {
+        padding: 24px 20px;
+    }
+    
+    .register-header {
+        margin-bottom: 28px;
+    }
+    
+    .register-header h1 {
+        font-size: 1.75rem;
+    }
+    
+    form {
+        gap: 16px;
+    }
+    
+    .form-group {
+        gap: 6px;
+    }
+    
+    input[type="text"],
+    input[type="password"],
+    input[type="email"] {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+    }
+    
+    button[type="submit"] {
+        padding: 12px 0;
+        font-size: 0.95rem;
+    }
+    
+    .form-footer {
+        margin-top: 20px;
+        padding-top: 16px;
+    }
+    
+    .form-footer p {
+        font-size: 0.9rem;
+    }
 }
 </style>

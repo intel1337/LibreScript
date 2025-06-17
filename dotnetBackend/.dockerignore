@@ -72,4 +72,52 @@ target/
 *.class
 .gradle/
 
+# .NET build artifacts
+bin/
+obj/
+
+# Visual Studio files
+.vs/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+msbuild.log
+msbuild.err
+msbuild.wrn
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+.history/
+
+# Environment files
+*.env
+appsettings.Development.json
+
+# Test files
+*.test
+*.testsettings
+*.http
+
+# Other
+*.*~
+project.lock.json
+.DS_Store
+*.pyc
+nupkg/
+
 # End of .dockerignore
