@@ -1,0 +1,66 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: librescript-ingress
+  namespace: librescript
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: librescript.local
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: backend-api
+            port:
+              number: 80
+      - path: /ai
+        pathType: Prefix
+        backend:
+          service:
+            name: ai-service
+            port:
+              number: 5050
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-web
+            port:
+              number: 3000
+  # Uncomment and configure for HTTPS
+  # tls:
+  # - hosts:
+  #   - librescript.local
+  #   secretName: librescript-tls
+
+---
+# Alternative LoadBalancer service for cloud environments
+apiVersion: v1
+kind: Service
+metadata:
+  name: librescript-loadbalancer
+  namespace: librescript
+  labels:
+    app: librescript
+spec:
+  type: LoadBalancer
+  selector:
+    app: frontend-web
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP
+    name: http 

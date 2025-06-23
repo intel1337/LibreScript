@@ -1,0 +1,154 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ai-service-config
+  namespace: librescript
+data:
+  BACKEND_API_URL: "http://backend-api:80/api"
+  MODEL_NAME: "124M"
+  RUN_NAME: "librescript_code_model"
+  TRAINING_STEPS: "1000"
+  FLASK_ENV: "production"
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ai-models-pvc
+  namespace: librescript
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: standard
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ai-checkpoints-pvc
+  namespace: librescript
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: standard
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-service
+  namespace: librescript
+  labels:
+    app: ai-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-service
+  template:
+    metadata:
+      labels:
+        app: ai-service
+    spec:
+      containers:
+      - name: ai-service
+        image: librescript/ai-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5050
+        env:
+        - name: BACKEND_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: ai-service-config
+              key: BACKEND_API_URL
+        - name: MODEL_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: ai-service-config
+              key: MODEL_NAME
+        - name: RUN_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: ai-service-config
+              key: RUN_NAME
+        - name: TRAINING_STEPS
+          valueFrom:
+            configMapKeyRef:
+              name: ai-service-config
+              key: TRAINING_STEPS
+        - name: FLASK_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: ai-service-config
+              key: FLASK_ENV
+        volumeMounts:
+        - name: ai-models
+          mountPath: /app/models
+        - name: ai-checkpoints
+          mountPath: /app/checkpoint
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 5050
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /status
+            port: 5050
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 3
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+      initContainers:
+      - name: wait-for-backend
+        image: curlimages/curl:latest
+        command:
+        - sh
+        - -c
+        - |
+          until curl -f http://backend-api:80/api/health 2>/dev/null; do
+            echo "Waiting for backend API..."
+            sleep 5
+          done
+          echo "Backend API is ready!"
+      volumes:
+      - name: ai-models
+        persistentVolumeClaim:
+          claimName: ai-models-pvc
+      - name: ai-checkpoints
+        persistentVolumeClaim:
+          claimName: ai-checkpoints-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-service
+  namespace: librescript
+  labels:
+    app: ai-service
+spec:
+  selector:
+    app: ai-service
+  ports:
+  - port: 5050
+    targetPort: 5050
+    protocol: TCP
+    name: http
+  type: ClusterIP 
