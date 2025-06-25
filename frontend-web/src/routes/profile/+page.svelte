@@ -6,6 +6,8 @@
     import { getLanguageIcon, getLanguageLabel } from '$lib/data/languages.js';
     import { updateAuthState } from '$lib/stores/authStore.js';
     import { getCurrentUser } from '$lib/services/loginService.js';
+    import AuthGuard from "$lib/components/AuthGuard.svelte";
+    import VerificationGuard from "$lib/components/VerificationGuard.svelte";
     import "../../app.css";
 
     let loading = false;
@@ -170,7 +172,9 @@
     <title>Profile - LibreScript</title>
 </svelte:head>
 
-<div class="profile-container">
+<AuthGuard>
+    <VerificationGuard>
+        <div class="profile-container">
     <div class="profile-header">
         <h1>My Profile</h1>
         <p>Welcome back, {$currentUser?.username || 'User'}!</p>
@@ -375,6 +379,8 @@
         </div>
     {/if}
 </div>
+    </VerificationGuard>
+</AuthGuard>
 
 <style>
     .profile-container {

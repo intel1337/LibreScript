@@ -6,6 +6,7 @@
     import { postComment, postReply, getCommentsForPost } from '$lib/services/commentService.js';
     import { currentUser } from '$lib/stores/authStore.js';
     import "../../../app.css";
+    import { aiService } from '$lib/services/aiService.js';
 
     let post = null;
     let error = null;
@@ -218,7 +219,7 @@
                     <span class="author-name">{post.author?.username || 'Unknown'}</span>
                 </div>
                 <div class="post-text">
-                    {post.content}
+                    {@html aiService.renderMarkdown(post.content)}
                 </div>
             </div>
         </div>
@@ -244,7 +245,7 @@
                 <h3>Your Answer</h3>
                 <textarea 
                     bind:value={newCommentContent}
-                    placeholder="Write your answer here..."
+                    placeholder="Write your answer here... (Markdown supported)"
                     rows="4"
                 ></textarea>
                 <button 
@@ -264,7 +265,7 @@
                 {#each comments as comment (comment.id)}
                     <div class="comment">
                         <div class="comment-content">
-                            <p>{comment.content}</p>
+                            <div class="comment-text">{@html aiService.renderMarkdown(comment.content)}</div>
                             <div class="comment-meta">
                                 <span class="comment-author">{comment.user?.username || 'Anonymous'}</span>
                                 <span class="comment-date">{formatDate(comment.createdAt)}</span>
@@ -281,7 +282,7 @@
                             <div class="reply-form">
                                 <textarea 
                                     bind:value={replyContent[comment.id]}
-                                    placeholder="Write your reply..."
+                                    placeholder="Write your reply... (Markdown supported)"
                                     rows="3"
                                 ></textarea>
                                 <div class="reply-actions">
@@ -311,7 +312,7 @@
                                 {#each comment.replies as reply (reply.id)}
                                     <div class="reply">
                                         <div class="reply-content">
-                                            <p>{reply.content}</p>
+                                            <div class="reply-text">{@html aiService.renderMarkdown(reply.content)}</div>
                                             <div class="comment-meta">
                                                 <span class="comment-author">{reply.user?.username || 'Anonymous'}</span>
                                                 <span class="comment-date">{formatDate(reply.createdAt)}</span>
@@ -473,24 +474,8 @@
         text-align: center;
     }
 
-    .upvote-count {
-        color: #0969da;
-    }
 
-    .downvote-count {
-        color: #d73a49;
-    }
 
-    .post-main {
-        flex: 1;
-    }
-
-    .post-title {
-        margin: 0 0 20px 0;
-        color: #24292f;
-        font-size: 1.75rem;
-        line-height: 1.3;
-    }
 
     .post-body {
         font-size: 1.1rem;
@@ -514,10 +499,7 @@
         color: #0969da;
     }
 
-    .author-fullname {
-        font-style: italic;
-        margin-left: 4px;
-    }
+
 
     .comments-section {
         background: #fff;
@@ -688,10 +670,6 @@
             gap: 30px;
         }
 
-        .post-title {
-            font-size: 1.4rem;
-        }
-
         .replies {
             margin-left: 10px;
             padding-left: 10px;
@@ -709,4 +687,486 @@
         border-color: #d73a49;
         color: #d73a49;
     }
+
+    /* Markdown styles for comments and replies */
+    .comment-text, .reply-text {
+        line-height: 1.6;
+        color: #24292f;
+    }
+
+    .comment-text h1, .comment-text h2, .comment-text h3, .comment-text h4, .comment-text h5, .comment-text h6,
+    .reply-text h1, .reply-text h2, .reply-text h3, .reply-text h4, .reply-text h5, .reply-text h6 {
+        margin: 16px 0 8px 0;
+        font-weight: 600;
+        color: #24292f;
+    }
+
+    .comment-text h1, .reply-text h1 { font-size: 1.5rem; }
+    .comment-text h2, .reply-text h2 { font-size: 1.3rem; }
+    .comment-text h3, .reply-text h3 { font-size: 1.1rem; }
+    .comment-text h4, .reply-text h4 { font-size: 1rem; }
+    .comment-text h5, .reply-text h5 { font-size: 0.9rem; }
+    .comment-text h6, .reply-text h6 { font-size: 0.85rem; }
+
+    .comment-text p, .reply-text p {
+        margin: 0 0 12px 0;
+        line-height: 1.6;
+    }
+
+    .comment-text ul, .comment-text ol, .reply-text ul, .reply-text ol {
+        margin: 8px 0 12px 0;
+        padding-left: 24px;
+    }
+
+    .comment-text li, .reply-text li {
+        margin: 4px 0;
+        line-height: 1.5;
+    }
+
+    .comment-text blockquote, .reply-text blockquote {
+        margin: 12px 0;
+        padding: 8px 16px;
+        border-left: 4px solid #d0d7de;
+        background: #f6f8fa;
+        color: #656d76;
+        font-style: italic;
+    }
+
+    .comment-text code, .reply-text code {
+        background: #f6f8fa;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        font-size: 0.9em;
+        color: #d73a49;
+    }
+
+    .comment-text pre, .reply-text pre {
+        background: #f6f8fa;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        padding: 12px;
+        margin: 12px 0;
+        overflow-x: auto;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        font-size: 0.85em;
+        line-height: 1.4;
+    }
+
+    .comment-text pre code, .reply-text pre code {
+        background: none;
+        padding: 0;
+        color: #24292f;
+        border-radius: 0;
+    }
+
+    .comment-text a, .reply-text a {
+        color: #0969da;
+        text-decoration: none;
+    }
+
+    .comment-text a:hover, .reply-text a:hover {
+        text-decoration: underline;
+    }
+
+    .comment-text strong, .reply-text strong {
+        font-weight: 600;
+    }
+
+    .comment-text em, .reply-text em {
+        font-style: italic;
+    }
+
+    .comment-text hr, .reply-text hr {
+        border: none;
+        border-top: 1px solid #d0d7de;
+        margin: 16px 0;
+    }
+
+    .comment-text table, .reply-text table {
+        border-collapse: collapse;
+        margin: 12px 0;
+        width: 100%;
+    }
+
+    .comment-text th, .comment-text td, .reply-text th, .reply-text td {
+        border: 1px solid #d0d7de;
+        padding: 8px 12px;
+        text-align: left;
+    }
+
+    .comment-text th, .reply-text th {
+        background: #f6f8fa;
+        font-weight: 600;
+    }
+
+        .comment-text img, .reply-text img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 6px;
+        margin: 8px 0;
+    }
+
+    /* Styles globaux pour le contenu markdown dans les commentaires et réponses */
+    .comment-text :global(h1),
+    .comment-text :global(h2),
+    .comment-text :global(h3),
+    .comment-text :global(h4),
+    .comment-text :global(h5),
+    .comment-text :global(h6),
+    .reply-text :global(h1),
+    .reply-text :global(h2),
+    .reply-text :global(h3),
+    .reply-text :global(h4),
+    .reply-text :global(h5),
+    .reply-text :global(h6) {
+        margin-top: 1.2em;
+        margin-bottom: 0.5em;
+        font-weight: 600;
+        color: #24292f;
+        line-height: 1.3;
+    }
+
+    .comment-text :global(h1), .reply-text :global(h1) { font-size: 1.6em; }
+    .comment-text :global(h2), .reply-text :global(h2) { font-size: 1.4em; }
+    .comment-text :global(h3), .reply-text :global(h3) { font-size: 1.2em; }
+    .comment-text :global(h4), .reply-text :global(h4) { font-size: 1.1em; }
+    .comment-text :global(h5), .reply-text :global(h5) { font-size: 1em; }
+    .comment-text :global(h6), .reply-text :global(h6) { font-size: 0.9em; }
+
+    .comment-text :global(p),
+    .reply-text :global(p) {
+        margin-bottom: 1em;
+        line-height: 1.6;
+        color: #24292f;
+    }
+
+    .comment-text :global(ul),
+    .comment-text :global(ol),
+    .reply-text :global(ul),
+    .reply-text :global(ol) {
+        margin: 1em 0;
+        padding-left: 1.5em;
+    }
+
+    .comment-text :global(li),
+    .reply-text :global(li) {
+        margin-bottom: 0.3em;
+        line-height: 1.5;
+    }
+
+    .comment-text :global(blockquote),
+    .reply-text :global(blockquote) {
+        margin: 1em 0;
+        padding: 0.8em 1em;
+        border-left: 4px solid #d0d7de;
+        background-color: #f6f8fa;
+        color: #656d76;
+        font-style: italic;
+        border-radius: 0 6px 6px 0;
+    }
+
+    .comment-text :global(code),
+    .reply-text :global(code) {
+        background-color: #f6f8fa;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        font-size: 0.9em;
+        color: #d73a49;
+        border: 1px solid #e1e5e9;
+    }
+
+    .comment-text :global(pre),
+    .reply-text :global(pre) {
+        background-color: #f6f8fa;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        padding: 1em;
+        overflow-x: auto;
+        margin: 1em 0;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        font-size: 0.85em;
+        line-height: 1.4;
+    }
+
+    .comment-text :global(pre code),
+    .reply-text :global(pre code) {
+        background-color: transparent;
+        padding: 0;
+        border: none;
+        color: #24292f;
+        font-size: inherit;
+    }
+
+    .comment-text :global(a),
+    .reply-text :global(a) {
+        color: #0969da;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .comment-text :global(a:hover),
+    .reply-text :global(a:hover) {
+        text-decoration: underline;
+        color: #0550ae;
+    }
+
+    .comment-text :global(strong),
+    .reply-text :global(strong) {
+        font-weight: 600;
+        color: #24292f;
+    }
+
+    .comment-text :global(em),
+    .reply-text :global(em) {
+        font-style: italic;
+    }
+
+    .comment-text :global(hr),
+    .reply-text :global(hr) {
+        border: none;
+        border-top: 1px solid #d0d7de;
+        margin: 1.5em 0;
+    }
+
+    .comment-text :global(table),
+    .reply-text :global(table) {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 1em 0;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .comment-text :global(th),
+    .comment-text :global(td),
+    .reply-text :global(th),
+    .reply-text :global(td) {
+        border: 1px solid #d0d7de;
+        padding: 8px 12px;
+        text-align: left;
+    }
+
+    .comment-text :global(th),
+    .reply-text :global(th) {
+        background-color: #f6f8fa;
+        font-weight: 600;
+        color: #24292f;
+    }
+
+    .comment-text :global(img),
+    .reply-text :global(img) {
+        max-width: 100%;
+        height: auto;
+        border-radius: 6px;
+        margin: 8px 0;
+        border: 1px solid #d0d7de;
+    }
+
+    /* Styles pour les listes imbriquées */
+    .comment-text :global(ul ul),
+    .comment-text :global(ol ol),
+    .comment-text :global(ul ol),
+    .comment-text :global(ol ul),
+    .reply-text :global(ul ul),
+    .reply-text :global(ol ol),
+    .reply-text :global(ul ol),
+    .reply-text :global(ol ul) {
+        margin: 0.5em 0;
+    }
+
+         /* Styles pour les citations de code inline dans des éléments spéciaux */
+     .comment-text :global(h1 code),
+     .comment-text :global(h2 code),
+     .comment-text :global(h3 code),
+     .comment-text :global(h4 code),
+     .comment-text :global(h5 code),
+     .comment-text :global(h6 code),
+     .reply-text :global(h1 code),
+     .reply-text :global(h2 code),
+     .reply-text :global(h3 code),
+     .reply-text :global(h4 code),
+     .reply-text :global(h5 code),
+     .reply-text :global(h6 code) {
+         font-size: 0.9em;
+         background-color: rgba(175, 184, 193, 0.2);
+     }
+
+     /* Styles globaux pour le contenu markdown du post principal */
+     .post-text :global(h1),
+     .post-text :global(h2),
+     .post-text :global(h3),
+     .post-text :global(h4),
+     .post-text :global(h5),
+     .post-text :global(h6) {
+         margin-top: 1.5em;
+         margin-bottom: 0.8em;
+         font-weight: 600;
+         color: #24292f;
+         line-height: 1.3;
+     }
+
+     .post-text :global(h1) { font-size: 1.8em; }
+     .post-text :global(h2) { font-size: 1.6em; }
+     .post-text :global(h3) { font-size: 1.4em; }
+     .post-text :global(h4) { font-size: 1.2em; }
+     .post-text :global(h5) { font-size: 1.1em; }
+     .post-text :global(h6) { font-size: 1em; }
+
+     .post-text :global(p) {
+         margin-bottom: 1.2em;
+         line-height: 1.7;
+         color: #24292f;
+         font-size: 1rem;
+     }
+
+     .post-text :global(ul),
+     .post-text :global(ol) {
+         margin: 1.2em 0;
+         padding-left: 1.8em;
+     }
+
+     .post-text :global(li) {
+         margin-bottom: 0.5em;
+         line-height: 1.6;
+     }
+
+     .post-text :global(blockquote) {
+         margin: 1.5em 0;
+         padding: 1em 1.2em;
+         border-left: 4px solid #0969da;
+         background-color: #f6f8fa;
+         color: #656d76;
+         font-style: italic;
+         border-radius: 0 8px 8px 0;
+         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+     }
+
+     .post-text :global(code) {
+         background-color: #f6f8fa;
+         padding: 3px 8px;
+         border-radius: 4px;
+         font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+         font-size: 0.9em;
+         color: #d73a49;
+         border: 1px solid #e1e5e9;
+         font-weight: 500;
+     }
+
+     .post-text :global(pre) {
+         background-color: #f6f8fa;
+         border: 1px solid #d0d7de;
+         border-radius: 8px;
+         padding: 1.2em;
+         overflow-x: auto;
+         margin: 1.5em 0;
+         font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+         font-size: 0.9em;
+         line-height: 1.5;
+         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+     }
+
+     .post-text :global(pre code) {
+         background-color: transparent;
+         padding: 0;
+         border: none;
+         color: #24292f;
+         font-size: inherit;
+         font-weight: normal;
+     }
+
+     .post-text :global(a) {
+         color: #0969da;
+         text-decoration: none;
+         font-weight: 500;
+         border-bottom: 1px solid transparent;
+         transition: all 0.2s ease;
+     }
+
+     .post-text :global(a:hover) {
+         text-decoration: underline;
+         color: #0550ae;
+         border-bottom-color: #0550ae;
+     }
+
+     .post-text :global(strong) {
+         font-weight: 600;
+         color: #24292f;
+     }
+
+     .post-text :global(em) {
+         font-style: italic;
+         color: #24292f;
+     }
+
+     .post-text :global(hr) {
+         border: none;
+         border-top: 2px solid #d0d7de;
+         margin: 2em 0;
+         border-radius: 1px;
+     }
+
+     .post-text :global(table) {
+         border-collapse: collapse;
+         width: 100%;
+         margin: 1.5em 0;
+         border: 1px solid #d0d7de;
+         border-radius: 8px;
+         overflow: hidden;
+         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+     }
+
+     .post-text :global(th),
+     .post-text :global(td) {
+         border: 1px solid #d0d7de;
+         padding: 10px 14px;
+         text-align: left;
+     }
+
+     .post-text :global(th) {
+         background-color: #f6f8fa;
+         font-weight: 600;
+         color: #24292f;
+         font-size: 0.95em;
+     }
+
+     .post-text :global(img) {
+         max-width: 100%;
+         height: auto;
+         border-radius: 8px;
+         margin: 1em 0;
+         border: 1px solid #d0d7de;
+         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+     }
+
+     /* Styles pour les listes imbriquées dans le post */
+     .post-text :global(ul ul),
+     .post-text :global(ol ol),
+     .post-text :global(ul ol),
+     .post-text :global(ol ul) {
+         margin: 0.8em 0;
+     }
+
+     /* Styles pour les citations de code inline dans les titres du post */
+     .post-text :global(h1 code),
+     .post-text :global(h2 code),
+     .post-text :global(h3 code),
+     .post-text :global(h4 code),
+     .post-text :global(h5 code),
+     .post-text :global(h6 code) {
+         font-size: 0.85em;
+         background-color: rgba(175, 184, 193, 0.2);
+         padding: 2px 6px;
+     }
+
+     /* Style spécial pour les citations dans le post principal */
+     .post-text :global(blockquote p) {
+         margin-bottom: 0.8em;
+     }
+
+     .post-text :global(blockquote p:last-child) {
+         margin-bottom: 0;
+     }
 </style> 

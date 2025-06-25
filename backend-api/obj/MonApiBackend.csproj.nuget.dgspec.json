@@ -70,6 +70,10 @@
               "target": "Package",
               "version": "[17.14.1, )"
             },
+            "Mistral.SDK": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            },
             "Npgsql": {
               "target": "Package",
               "version": "[9.0.3, )"

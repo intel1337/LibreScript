@@ -5,7 +5,7 @@
 
 <div class="layout-container">
   <main>
-    <slot /> <!-- This is crucial for page content to render -->
+    <slot /> 
   </main>
   <footer>
     <!-- You can put a global footer here -->

@@ -25,18 +25,13 @@ if ! command -v dotnet &> /dev/null; then
     exit 1
 fi
 
-if ! command -v python3 &> /dev/null; then
-    echo -e "${RED}❌ Python3 is not installed${NC}"
-    exit 1
-fi
+
 cd frontend-web
 npm install > /dev/null 2>&1
 npm run dev &
 cd ../backend-api
 dotnet run > /dev/null 2>&1 &
 BACKEND_PID=$!
-cd ../ai-service
-pip3 install -r requirements.txt > /dev/null 2>&1
-python3 api.py &
-AI_PID=$!
+
+
 wait $FRONTEND_PID $BACKEND_PID $AI_PID

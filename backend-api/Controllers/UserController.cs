@@ -64,12 +64,15 @@ namespace MonApiBackend.Controllers
         {
             if (request == null)
                 return BadRequest("User data is required.");
-            // SQL équivalent : SELECT COUNT(*) FROM Users WHERE Username = '{username}';
             if (_context.Users.Any(u => u.Username == request.Username))
                 return BadRequest("Username already exists.");
-            // SQL équivalent : SELECT COUNT(*) FROM Users WHERE Email = '{email}';
             if (_context.Users.Any(u => u.Email == request.Email))
                 return BadRequest("Email already exists.");
+            
+            // Générer le code de vérification à 6 chiffres
+            Random random = new Random();
+            int randomNumber = random.Next(100000, 999999); // S'assurer que c'est bien 6 chiffres
+            string verificationCode = randomNumber.ToString();
             
             var user = new User
             {
@@ -77,14 +80,95 @@ namespace MonApiBackend.Controllers
                 FullName = request.FullName,
                 Password = request.Password,
                 Email = request.Email,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                Verified = false,
+                VerificationCode = verificationCode,
+                VerificationCodeExpiry = DateTime.UtcNow.AddMinutes(15) // Code expire dans 15 minutes
             };
             
-            // SQL équivalent : INSERT INTO Users (Username, Email, Password, CreatedAt) VALUES ('{username}', '{email}', '{password}', '{createdAt}');
             _context.Users.Add(user);
             _context.SaveChanges();
 
-            // Récupération de la clé secrète depuis la config
+
+            try 
+            {
+                var configuration = HttpContext.RequestServices.GetRequiredService<IConfiguration>();
+               var welcomeSubject = $@"Bienvenue {user.FullName} sur LibreScript !";
+               var welcomeBody = $@"
+
+<!DOCTYPE html>
+<html lang='fr'>
+  <head>
+    <meta charset='UTF-8'>
+    <style>
+      body {{
+        font-family: Arial, sans-serif;
+        color: #333;
+        background-color: #f9f9f9;
+        padding: 20px;
+      }}
+      .container {{
+        background-color: #ffffff;
+        border-radius: 8px;
+        padding: 20px;
+        max-width: 600px;
+        margin: auto;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }}
+      .footer {{
+        margin-top: 30px;
+        font-size: 12px;
+        color: #777;
+      }}
+    </style>
+  </head>
+  <body>
+    <div class='container'>
+      <h2>Bienvenue sur LibreScript !</h2>
+      <p>Bonjour <strong>{user.FullName}</strong>,</p>
+
+      <p>Votre compte a été créé avec succès. Voici les informations liées à votre inscription :</p>
+      <p style='text-align: center;'><strong>Votre code de vérification est : <h3>{verificationCode}</h3></strong></p>
+      <p>Veuillez entrer ce code dans l'application pour vérifier votre compte.</p>
+      <p><strong>Ce code expire dans 15 minutes.</strong></p>
+      <a href='https://127.0.0.1:5173/verify'>Vérifier mon compte</a>
+
+      <ul>
+        <li><strong>Nom d'utilisateur :</strong> {user.Username}</li>
+        <li><strong>Email :</strong> {user.Email}</li>
+        <li><strong>Date de création :</strong> {user.CreatedAt:dd/MM/yyyy}</li>
+      </ul>
+
+      <p>Merci de nous avoir rejoint !</p>
+
+      <p>Cordialement,<br>L'équipe LibreScript</p>
+
+      <div class='footer'>
+        <p>Ceci est un mail automatique, merci de ne pas y répondre.</p>
+      </div>
+    </div>
+  </body>
+</html>";
+
+
+                var mailService = new MonApiBackend.Lib.SmtpMail(
+                    configuration,
+                    "smtp.gmail.com",           // SMTP host
+                    "noreply@librescript.com",  // From (ou votre email)
+                    user.Email,                 // To (email de l'utilisateur)
+                    welcomeSubject,             // Subject
+                    welcomeBody,                // Body
+                    $"registration-{user.Id}"   // UserState pour le tracking
+                );
+
+                _ = Task.Run(async () => await mailService.SendMailAsync());
+            }
+            catch (Exception emailEx)
+            {
+                Console.WriteLine($"Failed to send welcome email: {emailEx.Message}");
+            }
+
+            // Génération du JWT (votre code existant)
             var jwtKey = HttpContext.RequestServices.GetRequiredService<IConfiguration>().GetSection("Jwt:Key").Value;
             var key = Encoding.ASCII.GetBytes(jwtKey);
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -93,6 +177,7 @@ namespace MonApiBackend.Controllers
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim("UserId", user.Id.ToString()), // Ajout explicite pour le VerificationController
                     new Claim(ClaimTypes.Name, user.Username),
                     new Claim(ClaimTypes.Email, user.Email)
                 }),
@@ -125,6 +210,7 @@ namespace MonApiBackend.Controllers
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim("UserId", user.Id.ToString()), // Ajout explicite pour le VerificationController
                     new Claim(ClaimTypes.Name, user.Username),
                     new Claim(ClaimTypes.Email, user.Email)
                 }),

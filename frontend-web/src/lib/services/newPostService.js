@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5028';
+const API_URL = 'http://192.168.10.106:5028';
 
 export async function createPost(post) {
     try {

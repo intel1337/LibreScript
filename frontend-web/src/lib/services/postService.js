@@ -1,12 +1,12 @@
 export async function getPosts() {
-    const data = await fetch('http://localhost:5028/api/post'); 
+    const data = await fetch('http://192.168.10.106:5028/api/post'); 
     if (!data.ok) throw new Error('API error: ' + data.status);
     return await data.json();
 }
 
 // Get a single post by ID
 export async function getPostById(id) {
-    const data = await fetch(`http://localhost:5028/api/post/${id}`);
+    const data = await fetch(`http://192.168.10.106:5028/api/post/${id}`);
     if (!data.ok) throw new Error('API error: ' + data.status);
     return await data.json();
 }
@@ -21,7 +21,7 @@ export async function upvotePost(postId) {
         throw new Error('No authentication token found');
     }
 
-    const response = await fetch(`http://localhost:5028/api/post/${postId}/upvote`, {
+            const response = await fetch(`http://192.168.10.106:5028/api/post/${postId}/upvote`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -49,7 +49,7 @@ export async function downvotePost(postId) {
         throw new Error('No authentication token found');
     }
 
-    const response = await fetch(`http://localhost:5028/api/post/${postId}/downvote`, {
+            const response = await fetch(`http://192.168.10.106:5028/api/post/${postId}/downvote`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -81,7 +81,7 @@ export async function votePost(id, voteType) {
 
 export async function deletePost(id) {
     const token = localStorage.getItem('token');
-    const data = await fetch(`http://localhost:5028/api/post/${id}`, {
+    const data = await fetch(`http://192.168.10.106:5028/api/post/${id}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',

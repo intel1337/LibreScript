@@ -67,6 +67,10 @@ if (string.IsNullOrEmpty(connectionString))
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString)
 );
+
+// Ajout des services personnalisés
+builder.Services.AddScoped<MonApiBackend.Lib.IVerificationService, MonApiBackend.Lib.VerificationService>();
+
 // Ajout des services pour les contrôleurs
 builder.Services.AddControllers()
     .AddJsonOptions(options =>

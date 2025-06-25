@@ -35,6 +35,7 @@
 	},
 	"dependencies": {
 		"flowbite-svelte": "^1.5.3",
-		"flowbite-svelte-icons": "^2.2.0"
+		"flowbite-svelte-icons": "^2.2.0",
+		"marked": "^15.0.12"
 	}
 }

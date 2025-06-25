@@ -1,187 +1,75 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using System.Text.Json;
-using System.Text;
+using Mistral.SDK;
+using Microsoft.AspNetCore.Mvc; // import du mvc pour les contrôleurs
+using MonApiBackend.Models.Entities; // Import des entités métier
+using MonApiBackend.Models.Context; // Import du contexte de la db
+using System.Linq; // Import des fonctions linq pour les requêtes
+using Microsoft.EntityFrameworkCore; // Import de l'orm de Efc
+using System.Threading.Tasks; // Import des tâches asynchrones
+using System.Collections.Generic; // Import async pour await
+using Mistral.SDK.DTOs;
 
-namespace dotnetBackend.Controllers
+
+
+namespace MonApiBackend.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class AiController : ControllerBase
+    [ApiController] // Indique que cette classe est un contrôleur API
+    [Route("api/[controller]")] // Définit la route de base pour ce contrôleur en loccurence "api/ai"
+    public class AIController : ControllerBase
     {
-        private readonly HttpClient _httpClient;
-        private readonly ILogger<AiController> _logger;
-        private readonly string _aiApiUrl = "http://localhost:5050"; // URL de l'API Flask
+        private readonly AppDbContext _context;
+        private readonly MistralClient _client;
 
-        public AiController(HttpClient httpClient, ILogger<AiController> logger)
+        public AIController(AppDbContext context)
         {
-            _httpClient = httpClient;
-            _logger = logger;
+            _context = context;
+            _client = new MistralClient("r7SoTOCKXSJ795KEzY357OWlvSz6ePuP");
         }
 
-        /// <summary>
-        /// Vérifier le statut de l'API IA
-        /// </summary>
-        [HttpGet("status")]
-        public async Task<IActionResult> GetAiStatus()
+        [HttpGet("test")]
+        public IActionResult Test()
+        {
+            return Ok(new { message = "AIController fonctionne!", timestamp = DateTime.Now });
+        }
+
+        [HttpPost("ask")]
+        public async Task<IActionResult> Ask([FromBody] string question)
         {
             try
             {
-                var response = await _httpClient.GetAsync($"{_aiApiUrl}/status");
+                Console.WriteLine($"Question reçue: {question}");
                 
-                if (response.IsSuccessStatusCode)
+                if (string.IsNullOrEmpty(question))
                 {
-                    var content = await response.Content.ReadAsStringAsync();
-                    return Ok(JsonSerializer.Deserialize<object>(content));
-                }
-                else
-                {
-                    return StatusCode((int)response.StatusCode, new { error = "API IA non disponible" });
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erreur lors de la vérification du statut de l'API IA");
-                return StatusCode(500, new { error = "Erreur de communication avec l'API IA" });
-            }
-        }
-
-        /// <summary>
-        /// Générer une réponse avec l'IA
-        /// </summary>
-        [HttpPost("generate")]
-        [Authorize] // Nécessite une authentification
-        public async Task<IActionResult> GenerateResponse([FromBody] AiGenerateRequest request)
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(request.Prompt))
-                {
-                    return BadRequest(new { error = "Le prompt est requis" });
+                    return BadRequest(new { error = "La question ne peut pas être vide" });
                 }
 
-                // Préparer la requête pour l'API Flask
-                var aiRequest = new
-                {
-                    prompt = request.Prompt,
-                    length = request.Length ?? 200,
-                    temperature = request.Temperature ?? 0.7
-                };
-
-                var json = JsonSerializer.Serialize(aiRequest);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                _logger.LogInformation($"Envoi de requête à l'API IA: {request.Prompt.Substring(0, Math.Min(50, request.Prompt.Length))}...");
-
-                var response = await _httpClient.PostAsync($"{_aiApiUrl}/generate", content);
-                var responseContent = await response.Content.ReadAsStringAsync();
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var aiResponse = JsonSerializer.Deserialize<AiGenerateResponse>(responseContent);
-                    
-                    return Ok(new
+                Console.WriteLine("Appel à l'API Mistral...");
+                var request = new ChatCompletionRequest(
+                    "open-mistral-7b", // Utilisons un modèle public disponible
+                    new List<ChatMessage>
                     {
-                        success = true,
-                        prompt = aiResponse.prompt,
-                        response = aiResponse.response,
-                        parameters = aiResponse.parameters,
-                        timestamp = aiResponse.timestamp
-                    });
-                }
-                else
-                {
-                    _logger.LogError($"Erreur de l'API IA: {responseContent}");
-                    return StatusCode((int)response.StatusCode, JsonSerializer.Deserialize<object>(responseContent));
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erreur lors de la génération de réponse IA");
-                return StatusCode(500, new { error = "Erreur interne lors de la génération de réponse" });
-            }
-        }
+                        new ChatMessage(ChatMessage.RoleEnum.User, question)
+                    }
+                );
 
-        /// <summary>
-        /// Recharger le modèle IA
-        /// </summary>
-        [HttpPost("reload")]
-        [Authorize] // Nécessite une authentification
-        public async Task<IActionResult> ReloadAiModel()
-        {
-            try
-            {
-                var response = await _httpClient.PostAsync($"{_aiApiUrl}/reload", null);
-                var responseContent = await response.Content.ReadAsStringAsync();
+                var response = await _client.Completions.GetCompletionAsync(request);
 
-                if (response.IsSuccessStatusCode)
-                {
-                    return Ok(JsonSerializer.Deserialize<object>(responseContent));
-                }
-                else
-                {
-                    return StatusCode((int)response.StatusCode, JsonSerializer.Deserialize<object>(responseContent));
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erreur lors du rechargement du modèle IA");
-                return StatusCode(500, new { error = "Erreur lors du rechargement du modèle" });
-            }
-        }
-
-        /// <summary>
-        /// Test de connectivité avec l'API IA
-        /// </summary>
-        [HttpGet("health")]
-        public async Task<IActionResult> CheckAiHealth()
-        {
-            try
-            {
-                var response = await _httpClient.GetAsync($"{_aiApiUrl}/");
+                Console.WriteLine("Réponse reçue de Mistral");
+                var answer = response.Choices.FirstOrDefault()?.Message.Content;
                 
-                if (response.IsSuccessStatusCode)
+                if (string.IsNullOrEmpty(answer))
                 {
-                    var content = await response.Content.ReadAsStringAsync();
-                    return Ok(new 
-                    { 
-                        connected = true, 
-                        ai_status = JsonSerializer.Deserialize<object>(content) 
-                    });
+                    return Ok(new { answer = "Désolé, je n'ai pas pu générer une réponse." });
                 }
-                else
-                {
-                    return Ok(new { connected = false, status_code = (int)response.StatusCode });
-                }
+
+                return Ok(new { answer = answer });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erreur de connectivité avec l'API IA");
-                return Ok(new { connected = false, error = ex.Message });
+                Console.WriteLine($"Erreur dans AIController: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                return StatusCode(500, new { error = $"Erreur interne: {ex.Message}" });
             }
         }
     }
-
-    // Modèles de données
-    public class AiGenerateRequest
-    {
-        public string Prompt { get; set; } = string.Empty;
-        public int? Length { get; set; }
-        public double? Temperature { get; set; }
-    }
-
-    public class AiGenerateResponse
-    {
-        public bool success { get; set; }
-        public string prompt { get; set; } = string.Empty;
-        public string response { get; set; } = string.Empty;
-        public AiParameters parameters { get; set; } = new();
-        public string timestamp { get; set; } = string.Empty;
-    }
-
-    public class AiParameters
-    {
-        public int length { get; set; }
-        public double temperature { get; set; }
-    }
-} 
+}

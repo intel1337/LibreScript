@@ -49,8 +49,8 @@ async function handleRegister(e) {
         if (result.success) {
             const user = await getCurrentUser();
             if (user) {
-                console.log('Registration successful, redirecting to home');
-                goto('/');
+                console.log('Registration successful, redirecting to verification page');
+                goto('/verify');
             } else {
                 error = 'Token validation error. Please try again.';
                 logout();
