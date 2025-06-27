@@ -17,7 +17,7 @@
     let postsLoading = false;
     let postsError = null;
 
-    // Profile form data
+    // form data
     let profileForm = {
         fullName: '',
         email: '',
@@ -25,15 +25,13 @@
         confirmPassword: ''
     };
 
-    // Active tab
+   
     let activeTab = 'profile';
 
-    // Post management
     let editingStatus = {};
     let newStatuses = {};
 
     onMount(async () => {
-        // Check if user is logged in
         if (!$isLoggedIn || !$currentUser) {
             goto('/login');
             return;
@@ -43,7 +41,7 @@
         profileForm.fullName = $currentUser.fullName || '';
         profileForm.email = $currentUser.email || '';
 
-        // Load user posts
+
         await loadUserPosts();
     });
 
@@ -83,7 +81,7 @@
                 email: profileForm.email
             };
 
-            // Only include password if it's provided
+
             if (profileForm.password) {
                 updateData.password = profileForm.password;
             }
@@ -91,11 +89,11 @@
             await updateProfile(updateData);
             success = 'Profile updated successfully!';
             
-            // Refresh user data
+
             const updatedUser = await getCurrentUser();
             updateAuthState(true, updatedUser);
             
-            // Clear password fields
+
             profileForm.password = '';
             profileForm.confirmPassword = '';
         } catch (err) {
@@ -110,7 +108,7 @@
         try {
             await updatePostStatus(postId, newStatus);
             
-            // Update local state
+
             userPosts = userPosts.map(post => 
                 post.id === postId ? { ...post, status: newStatus } : post
             );
@@ -131,7 +129,7 @@
         try {
             await deletePost(postId);
             
-            // Remove from local state
+
             userPosts = userPosts.filter(post => post.id !== postId);
         } catch (err) {
             console.error('Error deleting post:', err);

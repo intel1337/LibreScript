@@ -9,7 +9,7 @@ let error = '';
 let loading = false;
 let checking = true;
 
-// Check if user is already logged in
+
 onMount(async () => {
     try {
         if (isLoggedIn()) {

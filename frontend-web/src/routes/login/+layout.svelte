@@ -12,14 +12,12 @@
     <slot /> <!-- This is crucial for page content to render -->
   </main>
 
-  <footer>
-    <!-- You can put a global footer here -->
-  </footer>
+
 </div>
 
 <style>
  
-  /* Optional: Add some basic styling for the layout itself */
+
   .layout-container {
     display: flex;
     flex-direction: column;
@@ -31,15 +29,8 @@
   }
 
   main {
-    flex-grow: 1; /* Ensures main content takes up available space */
-    /* Add padding or other styles as needed */
+    flex-grow: 1; 
   }
 
-  /* Example: 
-  header, footer {
-    padding: 1rem;
-    background-color: #f0f0f0;
-    text-align: center;
-  }
-  */
+
 </style>

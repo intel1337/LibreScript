@@ -5,7 +5,7 @@
   import { isLoggedIn, getCurrentUser } from '$lib/services/loginService.js';
   import { updateAuthState } from '$lib/stores/authStore.js';
 
-  // Initialize auth state when the app loads
+
   onMount(async () => {
     if (isLoggedIn()) {
       try {

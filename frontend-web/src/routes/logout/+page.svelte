@@ -4,11 +4,11 @@
     import { onMount } from 'svelte';
 
     onMount(() => {
-        // Perform logout
+
         logout();
         console.log('User logged out successfully');
         
-        // Redirect to login page
+
         goto('/login');
     });
 </script>

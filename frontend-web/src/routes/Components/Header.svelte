@@ -37,30 +37,30 @@
                     const viewportWidth = window.innerWidth;
                     const viewportHeight = window.innerHeight;
                     
-                    // Reset any previous transforms
+                    // reset les transformations précédentes
                     dropdown.style.transform = '';
                     dropdown.style.right = '0';
                     dropdown.style.left = 'auto';
                     
-                    // Check if menu overflows to the right
+                    // vérifier si le menu dépasse à droite
                     if (dropdownRect.right > viewportWidth - 10) {
                         const overflow = dropdownRect.right - viewportWidth + 20;
                         dropdown.style.transform = `translateX(-${overflow}px)`;
                     }
                     
-                    // Check if menu overflows to the bottom
+                    // vérifier si le menu dépasse en bas
                     if (dropdownRect.bottom > viewportHeight - 10) {
                         dropdown.style.top = 'auto';
                         dropdown.style.bottom = 'calc(100% + 10px)';
                         
-                        // Adjust arrow position for bottom dropdown
+                        // ajuster la position de l'arrow pour le dropdown en bas
                         const arrow = dropdown.querySelector('::before');
                         if (arrow) {
                             dropdown.style.setProperty('--arrow-position', 'bottom');
                         }
                     }
                     
-                    // For very small screens, ensure minimum usable width
+                    // pour les écrans  petits, s'assurer que la largeur minimale est utilisable
                     if (viewportWidth < 400) {
                         const maxWidth = Math.min(350, viewportWidth - 30);
                         dropdown.style.maxWidth = `${maxWidth}px`;

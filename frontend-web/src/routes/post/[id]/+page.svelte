@@ -58,7 +58,7 @@
             }
         } catch (err) {
             console.error('Error voting:', err);
-            // Could show error message to user
+
         } finally {
             loading = false;
         }
@@ -67,7 +67,7 @@
     async function handleCommentSubmit() {
         if (!newCommentContent.trim()) return;
         
-        // Check if user is logged in
+
         if (!$currentUser) {
             console.error('User not logged in');
             return;
@@ -84,7 +84,7 @@
             };
             
             const newComment = await postComment(comment);
-            // Add the new comment with empty replies array
+            // ajouter le commentaire à la liste des commentaires
             comments = [...comments, { ...newComment, replies: [] }];
             newCommentContent = '';
         } catch (err) {
@@ -96,7 +96,7 @@
         const content = replyContent[parentCommentId];
         if (!content?.trim()) return;
         
-        // Check if user is logged in
+
         if (!$currentUser) {
             console.error('User not logged in');
             return;
@@ -113,7 +113,7 @@
             
             const newReply = await postReply(parentCommentId, reply);
             
-            // Find the parent comment and add the reply
+                // trouver le commentaire parent et ajouter la réponse
             comments = comments.map(comment => {
                 if (comment.id === parentCommentId) {
                     return {

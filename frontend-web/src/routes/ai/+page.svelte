@@ -23,7 +23,7 @@
     async function handleSubmit() {
         if (userInput.trim() === '') return;
         
-        // Add user message
+
         messages = [...messages, {
             type: 'user',
             content: userInput

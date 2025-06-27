@@ -13,13 +13,13 @@
   </main>
 
   <footer>
-    <!-- You can put a global footer here -->
+
   </footer>
 </div>
 
 <style>
  
-  /* Optional: Add some basic styling for the layout itself */
+
   .layout-container {
     display: flex;
     flex-direction: column;
