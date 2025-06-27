@@ -1,4 +1,4 @@
-const API_URL = 'http://192.168.10.106:5028';
+import { API_BASE_URL } from '$lib/config.js';
 
 // Get user's posts
 export async function getUserPosts() {
@@ -9,7 +9,7 @@ export async function getUserPosts() {
 
     console.log('Fetching user posts with token:', token);
 
-    const response = await fetch(`${API_URL}/api/user/posts`, {
+    const response = await fetch(`${API_BASE_URL}/api/user/posts`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -37,7 +37,7 @@ export async function updateProfile(profileData) {
         throw new Error('No authentication token found');
     }
 
-    const response = await fetch(`${API_URL}/api/user/profile`, {
+    const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -61,7 +61,7 @@ export async function updatePostStatus(postId, status) {
         throw new Error('No authentication token found');
     }
 
-    const response = await fetch(`${API_URL}/api/post/${postId}/status`, {
+    const response = await fetch(`${API_BASE_URL}/api/post/${postId}/status`, {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -85,7 +85,7 @@ export async function deletePost(postId) {
         throw new Error('No authentication token found');
     }
 
-    const response = await fetch(`${API_URL}/api/post/${postId}`, {
+    const response = await fetch(`${API_BASE_URL}/api/post/${postId}`, {
         method: 'DELETE',
         headers: {
             'Authorization': `Bearer ${token}`,

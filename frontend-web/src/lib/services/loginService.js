@@ -1,6 +1,5 @@
 import { updateAuthState, clearAuthState } from '$lib/stores/authStore.js';
-
-const API_URL = 'http://192.168.10.106:5028';
+import { API_BASE_URL } from '$lib/config.js';
 
 
 export function isLoggedIn() {
@@ -52,7 +51,7 @@ export function logout() {
 async function validateTokenWithServer(token) {
     try {
         console.log('Validating token:', token);
-        const res = await fetch(`${API_URL}/api/user/authenticate`, {
+        const res = await fetch(`${API_BASE_URL}/api/user/authenticate`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -109,7 +108,7 @@ export async function getCurrentUser() {
 export async function login(username, password) {
     try {
         console.log('Attempting login for user:', username);
-        const response = await fetch(`${API_URL}/api/user/login/`, {
+        const response = await fetch(`${API_BASE_URL}/api/user/login/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -169,7 +168,7 @@ export async function login(username, password) {
  */
 export async function register({ username, fullName, password, email }) {
     try {
-        const res = await fetch(`${API_URL}/api/user/register`, {
+        const res = await fetch(`${API_BASE_URL}/api/user/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, fullName, password, email })

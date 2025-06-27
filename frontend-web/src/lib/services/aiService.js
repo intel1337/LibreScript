@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://192.168.10.106:5028/api';
+import { API_BASE_URL } from '$lib/config.js';
 import { marked } from 'marked';
 
 export const aiService = {
@@ -22,8 +22,8 @@ export const aiService = {
     },
     async testConnection() {
         try {
-            console.log('Test de connexion vers:', `${API_BASE_URL}/ai/test`);
-            const response = await fetch(`${API_BASE_URL}/ai/test`);
+            console.log('Test de connexion vers:', `${API_BASE_URL}/api/ai/test`);
+            const response = await fetch(`${API_BASE_URL}/api/ai/test`);
             const data = await response.json();
             console.log('Test de connexion réussi:', data);
             return data;
@@ -36,9 +36,9 @@ export const aiService = {
     async askQuestion(question) {
         try {
             console.log('Envoi de la question:', question);
-            console.log('URL utilisée:', `${API_BASE_URL}/ai/ask`);
+            console.log('URL utilisée:', `${API_BASE_URL}/api/ai/ask`);
             
-            const response = await fetch(`${API_BASE_URL}/ai/ask`, {
+            const response = await fetch(`${API_BASE_URL}/api/ai/ask`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

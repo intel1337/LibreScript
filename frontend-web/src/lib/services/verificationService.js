@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://192.168.10.106:5028/api';
+import { API_BASE_URL } from '$lib/config.js';
 
 export const verificationService = {
     async getVerificationStatus() {
@@ -8,7 +8,7 @@ export const verificationService = {
                 throw new Error('Token non trouvé');
             }
 
-            const response = await fetch(`${API_BASE_URL}/verification/status`, {
+            const response = await fetch(`${API_BASE_URL}/api/verification/status`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -35,7 +35,7 @@ export const verificationService = {
                 throw new Error('Token non trouvé');
             }
 
-            const response = await fetch(`${API_BASE_URL}/verification/send-code`, {
+            const response = await fetch(`${API_BASE_URL}/api/verification/send-code`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -62,7 +62,7 @@ export const verificationService = {
                 throw new Error('Token non trouvé');
             }
 
-            const response = await fetch(`${API_BASE_URL}/verification/verify`, {
+            const response = await fetch(`${API_BASE_URL}/api/verification/verify`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

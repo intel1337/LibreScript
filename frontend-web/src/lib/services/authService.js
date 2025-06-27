@@ -1,7 +1,6 @@
 // src/lib/services/authService.js
 import { goto } from '$app/navigation';
-
-const API_URL = 'http://192.168.10.106:5028';
+import { API_BASE_URL } from '$lib/config.js';
 
 
 
@@ -12,7 +11,7 @@ export async function checkAuth() {
         return null;
     }
     try {
-        const res = await fetch(`${API_URL}/api/user/authenticate`, {
+        const res = await fetch(`${API_BASE_URL}/api/user/authenticate`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` }
         });

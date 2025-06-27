@@ -1,8 +1,8 @@
-const API_URL = 'http://192.168.10.106:5028';
+import { API_BASE_URL } from '$lib/config.js';
 
 export async function createPost(post) {
     try {
-        const response = await fetch(`${API_URL}/api/post`, {
+        const response = await fetch(`${API_BASE_URL}/api/post`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

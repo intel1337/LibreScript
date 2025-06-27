@@ -1,10 +1,10 @@
 // src/lib/services/registerService.js
-const API_URL = 'http://192.168.10.106:5028';
+import { API_BASE_URL } from '$lib/config.js';
 
 
 export async function register({ username, fullName, password, email }) {
     try {
-        const res = await fetch(`${API_URL}/api/user/register/`, {
+        const res = await fetch(`${API_BASE_URL}/api/user/register/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, fullName, password, email })

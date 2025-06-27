@@ -1,13 +1,15 @@
+import { API_BASE_URL } from '$lib/config.js';
+
 // Get comment count for a specific post
 export async function getCommentCountForPost(postId) {
-    const data = await fetch(`http://192.168.10.106:5028/api/comment/post/${postId}/count`);
+    const data = await fetch(`${API_BASE_URL}/api/comment/post/${postId}/count`);
     if (!data.ok) throw new Error('API error: ' + data.status);
     return await data.json();
 }
 
 // Get comments for a specific post
 export async function getCommentsForPost(postId) {
-    const data = await fetch(`http://192.168.10.106:5028/api/comment/post/${postId}`);
+    const data = await fetch(`${API_BASE_URL}/api/comment/post/${postId}`);
     if (!data.ok) throw new Error('API error: ' + data.status);
     const response = await data.json();
     
@@ -17,7 +19,7 @@ export async function getCommentsForPost(postId) {
 
 // Post a new comment
 export async function postComment(comment) {
-    const data = await fetch('http://192.168.10.106:5028/api/comment', {
+    const data = await fetch(`${API_BASE_URL}/api/comment`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -30,7 +32,7 @@ export async function postComment(comment) {
 
 // Post a reply to a comment
 export async function postReply(parentCommentId, reply) {
-    const data = await fetch(`http://192.168.10.106:5028/api/comment/${parentCommentId}/replies`, {
+    const data = await fetch(`${API_BASE_URL}/api/comment/${parentCommentId}/replies`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
