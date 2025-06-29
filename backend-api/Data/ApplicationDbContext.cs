@@ -18,6 +18,30 @@ namespace MonApiBackend.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            /* Équivalent SQL de la configuration PostVotes :
+             * 
+             * CREATE TABLE PostVotes (
+             *     Id INT IDENTITY(1,1) PRIMARY KEY,
+             *     PostId INT NOT NULL,
+             *     UserId INT NOT NULL,
+             *     VoteType VARCHAR(50) NOT NULL,
+             *     CreatedAt DATETIME2 DEFAULT GETDATE()
+             * );
+             * 
+             * ALTER TABLE PostVotes
+             * ADD CONSTRAINT FK_PostVotes_Post
+             * FOREIGN KEY (PostId) REFERENCES Posts(Id)
+             * ON DELETE CASCADE;
+             * 
+             * ALTER TABLE PostVotes
+             * ADD CONSTRAINT FK_PostVotes_User
+             * FOREIGN KEY (UserId) REFERENCES Users(Id)
+             * ON DELETE CASCADE;
+             * 
+             * CREATE UNIQUE INDEX IX_PostVotes_PostId_UserId
+             * ON PostVotes (PostId, UserId);
+             */
+
             // Configuration de la table PostVotes
             modelBuilder.Entity<PostVote>()
                 .HasOne(v => v.Post)
