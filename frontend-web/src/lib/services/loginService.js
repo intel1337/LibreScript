@@ -1,208 +1,180 @@
-import { updateAuthState, clearAuthState } from '$lib/stores/authStore.js';
-import { API_BASE_URL } from '$lib/config.js';
+import { BaseService } from './BaseService.js';
+import { authStore } from '$lib/stores/authStore.js';
 
+/**
+ * @class LoginService
+ * @extends BaseService
+ * @description Gestion de la connexion utilisateur
+ */
+class LoginService extends BaseService {
+    constructor() {
+        super('LoginService');
+    }
+
+    /**
+     * @returns {boolean} True si l'utilisateur est connecté
+     */
+    isLoggedIn() {
+        return !!this.getToken();
+    }
+
+    /**
+     * @param {string} username - Nom d'utilisateur
+     * @param {string} password - Mot de passe
+     * @returns {Promise<Object>} Résultat de la connexion
+     */
+    async login(username, password) {
+        try {
+            const response = await this.post('/api/user/login', 
+                { username, password },
+                { headers: this.getHeaders(false) }
+            );
+
+            if (response && response.token) {
+                this.storeToken(response.token);
+                authStore.setUser(response.user || { username });
+                return { success: true, user: response.user, token: response.token };
+            }
+
+            return { error: 'Identifiants invalides' };
+        } catch (error) {
+            this.logError('Login failed', error);
+            
+            let errorMessage = 'Erreur de connexion';
+            if (error.message.includes('401') || error.message.includes('403')) {
+                errorMessage = 'Identifiants incorrects';
+            } else if (error.message.includes('500')) {
+                errorMessage = 'Erreur serveur';
+            }
+            
+            return { error: errorMessage };
+        }
+    }
+
+    /**
+     * @param {Object} userData - Données utilisateur
+     * @returns {Promise<Object>} Résultat de l'inscription
+     */
+    async register(userData) {
+        try {
+            const response = await this.post('/api/user/register',
+                userData,
+                { headers: this.getHeaders(false) }
+            );
+
+            if (response && response.token) {
+                this.storeToken(response.token);
+                authStore.setUser(response.user || { username: userData.username });
+                return { success: true, user: response.user, token: response.token };
+            }
+
+            return response;
+        } catch (error) {
+            this.logError('Registration failed', error);
+            
+            let errorMessage = 'Erreur d\'inscription';
+            if (error.message.includes('409')) {
+                errorMessage = 'Utilisateur déjà existant';
+            } else if (error.message.includes('400')) {
+                errorMessage = 'Données invalides';
+            }
+            
+            return { error: errorMessage };
+        }
+    }
+
+    /**
+     * Déconnexion utilisateur
+     */
+    logout() {
+        this.removeToken();
+        authStore.clearUser();
+    }
+
+    /**
+     * @returns {Promise<Object|null>} Utilisateur actuel
+     */
+    async getCurrentUser() {
+        const token = this.getToken();
+        if (!token) {
+            return null;
+        }
+
+        try {
+            const user = await this.get('/api/user/profile');
+            authStore.setUser(user);
+            return user;
+        } catch (error) {
+            this.logError('Failed to get current user', error);
+            this.removeToken();
+            authStore.clearUser();
+            return null;
+        }
+    }
+
+    /**
+     * @returns {Promise<boolean>} True si le token est valide
+     */
+    async validateTokenWithServer() {
+        const token = this.getToken();
+        if (!token) {
+            return false;
+        }
+
+        try {
+            await this.get('/api/user/profile');
+            return true;
+        } catch {
+            this.removeToken();
+            authStore.clearUser();
+            return false;
+        }
+    }
+
+    /**
+     * @returns {boolean} True si l'authentification est requise
+     */
+    requireAuth() {
+        if (!this.isLoggedIn()) {
+            if (typeof window !== 'undefined') {
+                window.location.href = '/login';
+            }
+            return false;
+        }
+        return true;
+    }
+}
+
+// Instance LoginService
+const loginServiceInstance = new LoginService();
 
 export function isLoggedIn() {
-    if (typeof localStorage === 'undefined') return false;
-    const token = localStorage.getItem('token');
-    return !!token;
+    return loginServiceInstance.isLoggedIn();
 }
 
-
-export function storeToken(token) {
-    if (typeof localStorage !== 'undefined' && token) {
-        console.log('Storing token:', token);
-        localStorage.setItem('token', token);
-        console.log('Token stored successfully');
-    } else {
-        console.log('Cannot store token:', { hasLocalStorage: typeof localStorage !== 'undefined', hasToken: !!token });
-    }
+export async function login(username, password) {
+    return loginServiceInstance.login(username, password);
 }
 
-/**
- * Récupère le token stocké
- * @returns {string|null}
- */
-export function getStoredToken() {
-    if (typeof localStorage === 'undefined') {
-        console.log('localStorage is not available');
-        return null;
-    }
-    const token = localStorage.getItem('token');
-    console.log('Retrieved token:', token);
-    return token;
+export async function register(userData) {
+    return loginServiceInstance.register(userData);
 }
 
-/**
- * Déconnecte l'utilisateur (supprime le token)
- */
 export function logout() {
-    if (typeof localStorage !== 'undefined') {
-        localStorage.removeItem('token');
-        console.log('User logged out, token removed');
-    }
-    // Clear auth state
-    clearAuthState();
+    return loginServiceInstance.logout();
 }
-
-
-
-
-async function validateTokenWithServer(token) {
-    try {
-        console.log('Validating token:', token);
-        const res = await fetch(`${API_BASE_URL}/api/user/authenticate`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        console.log('Validation response status:', res.status);
-        if (res.ok) {
-            const userData = await res.json();
-            console.log('Validation successful, user data:', userData);
-            return { valid: true, userData };
-        } else {
-            const errorText = await res.text();
-            console.log('Server token validation failed:', res.status, errorText);
-            return { valid: false };
-        }
-    } catch (error) {
-        console.error('Error validating token with server:', error);
-        return { valid: false };
-    }
-}
-
 
 export async function getCurrentUser() {
-    const token = getStoredToken();
-    
-    if (!token) {
-        console.log('No token found');
-        return null;
-    }
-
-
-
-
-    const validation = await validateTokenWithServer(token);
-    
-    if (validation.valid && validation.userData) {
-        console.log('Token valid, user data received:', validation.userData);
-        return validation.userData;
-    } else {
-        console.log('Token invalid, removing it');
-        logout();
-        return null;
-    }
+    return loginServiceInstance.getCurrentUser();
 }
 
-/**
- * Authentifie l'utilisateur via l'API
- * @param {string} username
- * @param {string} password
- * @returns {Promise<{success: boolean, token?: string, error?: string}>}
- */
-export async function login(username, password) {
-    try {
-        console.log('Attempting login for user:', username);
-        const response = await fetch(`${API_BASE_URL}/api/user/login/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username, password })
-        });
-
-        console.log('Login response status:', response.status);
-        
-        if (response.ok) {
-            const data = await response.json();
-            console.log('Login response data:', data);
-            
-            if (data.token) {
-                console.log('Login successful, storing token');
-                storeToken(data.token);
-                // Update auth state
-                const user = await getCurrentUser();
-                updateAuthState(true, user);
-                return { success: true, token: data.token };
-            } else {
-                return { success: false, error: 'No token received' };
-            }
-        } else {
-            // Handle non-JSON error responses
-            let errorMessage;
-            const contentType = response.headers.get('content-type');
-            
-            if (contentType && contentType.includes('application/json')) {
-                try {
-                    const data = await response.json();
-                    errorMessage = data.message || 'Login failed';
-                } catch {
-                    errorMessage = 'Login failed';
-                }
-            } else {
-                try {
-                    const text = await response.text();
-                    errorMessage = text || 'Login failed';
-                } catch {
-                    errorMessage = 'Login failed';
-                }
-            }
-            console.log('Login failed:', errorMessage);
-            return { success: false, error: errorMessage };
-        }
-    } catch (error) {
-        console.error('Login error:', error);
-        return { success: false, error: 'Erreur réseau ou serveur.' };
-    }
+export async function validateTokenWithServer() {
+    return loginServiceInstance.validateTokenWithServer();
 }
 
-/**
- * Inscrit un nouvel utilisateur via l'API
- * @param {Object} user - { username, fullName, password, email }
- * @returns {Promise<{success: boolean, token?: string, error?: string}>}
- */
-export async function register({ username, fullName, password, email }) {
-    try {
-        const res = await fetch(`${API_BASE_URL}/api/user/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, fullName, password, email })
-        });
-
-        if (res.ok) {
-            const data = await res.json();
-            if (data.token) {
-
-                storeToken(data.token);
-                return { success: true, token: data.token };
-            } else {
-                return { success: false, error: 'Token manquant dans la réponse.' };
-            }
-        } else {
-            const msg = await res.text();
-            return { success: false, error: msg || 'Erreur lors de l\'inscription.' };
-        }
-    } catch (error) {
-        console.error('Register error:', error);
-        return { success: false, error: 'Erreur réseau ou serveur.' };
-    }
+export function requireAuth() {
+    return loginServiceInstance.requireAuth();
 }
 
-/**
-
- */
-export async function requireAuth() {
-    const user = await getCurrentUser();
-    return !!user;
-}
-
-
-export async function auth(username, password) {
-    const result = await login(username, password);
-    return result.success ? { token: result.token } : { error: result.error };
-}
+// Instance LoginService
+export { LoginService };

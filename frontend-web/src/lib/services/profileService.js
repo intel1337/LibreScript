@@ -1,102 +1,107 @@
-import { API_BASE_URL } from '$lib/config.js';
+import { BaseService } from './BaseService.js';
 
-// Get user's posts
+/**
+ * @class ProfileService
+ * @extends BaseService
+ * @description Gestion du profil utilisateur et de ses posts
+ */
+class ProfileService extends BaseService {
+    constructor() {
+        super('ProfileService');
+    }
+
+    /**
+     * @returns {Promise<Array>} Tableau des posts de l'utilisateur
+     */
+    async getUserPosts() {
+        try {
+            const posts = await this.get('/api/user/posts');
+            return posts;
+        } catch (error) {
+            this.logError('Failed to get user posts', error);
+            this.handleAuthError(error);
+        }
+    }
+
+    /**
+     * @param {Object} profileData - Données du profil à mettre à jour
+     * @returns {Promise<Object>} Profil mis à jour
+     */
+    async updateProfile(profileData) {
+        try {
+            const result = await this.put('/api/user/profile', profileData);
+            return result;
+        } catch (error) {
+            this.logError('Failed to update profile', error);
+            this.handleAuthError(error);
+        }
+    }
+
+    /**
+     * @param {string|number} postId - ID du post
+     * @param {string} status - Nouveau statut du post
+     * @returns {Promise<Object>} Résultat de la mise à jour du statut
+     */
+    async updatePostStatus(postId, status) {
+        try {
+            const result = await this.put('/api/post/' + postId + '/status', { status });
+            return result;
+        } catch (error) {
+            this.logError('Failed to update post ' + postId + ' status', error);
+            this.handleAuthError(error);
+        }
+    }
+
+    /**
+     * @param {string|number} postId - ID du post
+     * @returns {Promise<boolean>} True si la suppression a réussi
+     */
+    async deletePost(postId) {
+        try {
+            await this.delete('/api/post/' + postId);
+            return true;
+        } catch (error) {
+            this.logError('Failed to delete post ' + postId, error);
+            this.handleAuthError(error);
+        }
+    }
+
+    /**
+     * @returns {Promise<Object>} Profil de l'utilisateur actuel
+     */
+    async getCurrentUserProfile() {
+        try {
+            const profile = await this.get('/api/user/profile');
+            return profile;
+        } catch (error) {
+            this.logError('Failed to get current user profile', error);
+            this.handleAuthError(error);
+        }
+    }
+}
+
+// Instance ProfileService
+const profileServiceInstance = new ProfileService();
+
 export async function getUserPosts() {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        throw new Error('No authentication token found');
-    }
-
-    console.log('Fetching user posts with token:', token);
-
-    const response = await fetch(`${API_BASE_URL}/api/user/posts`, {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        }
-    });
-
-    console.log('User posts response status:', response.status);
-
-    if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Error fetching user posts:', errorText);
-        throw new Error(`API error: ${response.status} - ${errorText}`);
-    }
-
-    const posts = await response.json();
-    console.log('User posts received:', posts);
-    return posts;
+    return profileServiceInstance.getUserPosts();
 }
 
-// Update user profile
 export async function updateProfile(profileData) {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        throw new Error('No authentication token found');
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
-        method: 'PUT',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(profileData)
-    });
-
-    if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || `API error: ${response.status}`);
-    }
-
-    return await response.json();
+    return profileServiceInstance.updateProfile(profileData);
 }
 
-// Update post status
 export async function updatePostStatus(postId, status) {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        throw new Error('No authentication token found');
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/post/${postId}/status`, {
-        method: 'PUT',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status })
-    });
-
-    if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || `API error: ${response.status}`);
-    }
-
-    return await response.json();
+    return profileServiceInstance.updatePostStatus(postId, status);
 }
 
-// Delete post
 export async function deletePost(postId) {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        throw new Error('No authentication token found');
-    }
+    return profileServiceInstance.deletePost(postId);
+}
 
-    const response = await fetch(`${API_BASE_URL}/api/post/${postId}`, {
-        method: 'DELETE',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        }
-    });
+export async function getCurrentUserProfile() {
+    return profileServiceInstance.getCurrentUserProfile();
+}
 
-    if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || `API error: ${response.status}`);
-    }
-
-    return response.status === 204;
-} 
+// Instance ProfileService
+export { ProfileService }; 
