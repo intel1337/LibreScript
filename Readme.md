@@ -5,6 +5,9 @@
 LibreScript est une application web / de bureau moderne développée avec une architecture full-stack, combinant un backend .NET et un frontend Svelte.
 <img width="1458" alt="image" src="https://github.com/user-attachments/assets/0a017160-2046-45c7-ba55-efa6cd200d8d" />
 
+# Pourquoi ce Projet ?
+Tout simplement car c'est une architecture intéressante à coder, qui se démarque des usuels blogs / boutiques en ligne. La performance est aussi demandée et l'optimisation est nécessaire nativement dans le projet. C'est pour ca que J'utilise ASP.NET et Svelte 2 des meilleurs Frameworks Web en termes de performances pures.
+
 ## Architecture du Projet
 
 ### Backend (.NET)
@@ -13,12 +16,10 @@ Le backend est développé en C# avec .NET et comprend :
 - Une base de données avec Entity Framework Core
 - Des migrations pour la gestion du schéma de base de données
 - Une configuration Docker pour le déploiement
-- Une configuration Kubernetes pour l'orchestration
-
+- Serveur SMTP via Gmail
 ### Frontend (Svelte)
 Le frontend est développé avec Svelte et comprend :
 - Une interface utilisateur moderne et réactive
-- Une intégration Electron pour le déploiement en tant qu'application de bureau
 - Une Intégration Web / Web Mobile
 - Une configuration de build optimisée
 - Des outils de développement modernes (ESLint, Vite, prettier)
@@ -34,33 +35,33 @@ Le frontend est développé avec Svelte et comprend :
 
 ### Backend
 ```bash
-cd dotnetBackend
-# Mac, Linux, BSD : ./setup.sh
-# Windows :  start setup.bat
+cd backend-api
 dotnet restore
-# Optional : dotnet build 
-# Ne Pas oublier de setup une db Postgres et l'url dans appsettings.json (Si docker utiliser une image postgres Docker)
+dotnet build
+dotnet run
 ```
 
 ### Frontend
 ```bash
-cd svelteFrontEnd
-npm install
+cd frontend-web
+npm i #"npm ci" in prod
+npm run build #prod
+npm run dev #"npm run preview" in prod
 ```
 
 ## Démarrage
 
 ### Backend
 ```bash
-cd dotnetBackend
+cd backend-api
+dotnet build
 dotnet run
 ```
 
 ### Frontend
 ```bash
-cd svelteFrontEnd
-npm run dev
-
+cd frontend-web
+npm run preview
 ```
 
 ## Déploiement
@@ -72,24 +73,17 @@ Le projet inclut des configurations Docker pour le déploiement :
 
 ### CI/CD
 Le projet inclut des configurations GitHub Actions pour l'intégration et le déploiement continus.
-
-## Structure des Dossiers
-
 ```
-LibreScript/
-├── dotnetBackend/          # Backend .NET
-│   ├── Controllers/       # Contrôleurs API
-│   ├── Models/           # Modèles de données
-│   ├── Data/             # Contexte de base de données
-│   ├── Migrations/       # Migrations EF Core
-│   └── k8s/              # Configurations Kubernetes
-│
-└── svelteFrontEnd/        # Frontend Svelte
-    ├── src/              # Code source
-    ├── static/           # Ressources statiques
-    └── electron.mjs      # Configuration Electron
+Librescript/
+    backend-api/
+    ├── Controllers/          # Contrôleurs API
+    ├── Models/              # Modèles de données (User.cs, Post.cs, etc.)
+    ├── Data/                # Contexte de base de données
+    ├── Migrations/          # Migrations EF Core
+    ├── Services/            # Services métier (Mail, Verification)
+    ├── Tests/               # Tests unitaires
+    └── [fichiers config]    # Program.cs, .csproj, appsettings.json
 ```
-
 ## Choix de la Stack Technique
 
 ### Pourquoi .NET pour le Backend ?
@@ -103,7 +97,6 @@ LibreScript/
 - **Performance** : Svelte compile le code en JavaScript vanilla ultra-optimisé, offrant des performances supérieures aux frameworks traditionnels
 - **Taille réduite** : Le bundle final est plus léger, ce qui améliore les temps de chargement et l'expérience utilisateur
 - **Réactivité** : Gestion efficace des mises à jour du DOM, cruciale pour un forum avec des mises à jour en temps réel
-- **Electron** : Permet de créer une application de bureau native tout en réutilisant le code web, offrant une expérience utilisateur cohérente
 - **SEO-friendly** : Facilite l'indexation du contenu du forum par les moteurs de recherche
 
 ### Architecture Scalable
