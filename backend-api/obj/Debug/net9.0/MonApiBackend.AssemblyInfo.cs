@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MonApiBackend")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d2554b6303e31ab0e7fc775d83f4d3d1d5b53f66")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a5dcc73fc63ce67e8ac5e871e3cd8572c8776253")]
 [assembly: System.Reflection.AssemblyProductAttribute("MonApiBackend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MonApiBackend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

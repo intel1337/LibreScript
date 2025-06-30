@@ -191,8 +191,8 @@ namespace MonApiBackend.Controllers
         }
 
         // Connexion d'un utilisateur (retourne un JWT si ok)
-        // Route: POST api/user/login/
-        [HttpPost("login/")]
+        // Route: POST api/user/login
+        [HttpPost("login")]
         public IActionResult Login([FromBody] LoginRequest login)
         {
             if (login == null)
@@ -269,6 +269,55 @@ namespace MonApiBackend.Controllers
             catch (Exception ex)
             {
                 return Unauthorized($"Invalid or expired token: {ex.Message}");
+            }
+        }
+
+        // Get current user profile
+        // Route: GET api/user/profile
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetProfile()
+        {
+            var authHeader = Request.Headers["Authorization"].FirstOrDefault();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                return Unauthorized("Missing or invalid Authorization header.");
+
+            var token = authHeader.Substring("Bearer ".Length).Trim();
+            var jwtKey = HttpContext.RequestServices.GetRequiredService<IConfiguration>().GetSection("Jwt:Key").Value;
+            var key = Encoding.ASCII.GetBytes(jwtKey);
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            try
+            {
+                tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                }, out SecurityToken validatedToken);
+
+                var jwtToken = (JwtSecurityToken)validatedToken;
+                var userId = int.Parse(jwtToken.Claims.First(x => x.Type == "nameid").Value);
+
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null)
+                    return NotFound("User not found");
+
+                // Return user profile (without password)
+                return Ok(new {
+                    id = user.Id,
+                    username = user.Username,
+                    fullName = user.FullName,
+                    email = user.Email,
+                    verified = user.Verified,
+                    createdAt = user.CreatedAt
+                });
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized($"Invalid token: {ex.Message}");
             }
         }
 

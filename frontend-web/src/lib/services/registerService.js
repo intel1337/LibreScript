@@ -17,7 +17,7 @@ class RegisterService extends BaseService {
      */
     async register({ username, fullName, password, email }) {
         try {
-            const response = await this.post('/api/user/register/', 
+            const response = await this.post('/api/user/register', 
                 { username, fullName, password, email },
                 { headers: this.getHeaders(false) }
             );
