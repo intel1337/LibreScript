@@ -1,3 +1,5 @@
+<img width="204" alt="image" src="https://github.com/user-attachments/assets/9fe540e0-349a-4a6b-a279-696c2747c0aa" />
+
 # LibreScript
 
 LibreScript est une application web / de bureau moderne développée avec une architecture full-stack, combinant un backend .NET et un frontend Svelte.
@@ -121,3 +123,5 @@ LibreScript/
 ## Licence
 
 Ce projet est sous licence libre.
+<img width="204" alt="image" src="https://github.com/user-attachments/assets/a62d90b7-4581-4242-96e7-807ca649c25d" />
+
