@@ -123,5 +123,5 @@ LibreScript/
 ## Licence
 
 Ce projet est sous licence libre.
-<img width="204" alt="image" src="https://github.com/user-attachments/assets/a62d90b7-4581-4242-96e7-807ca649c25d" />
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/a62d90b7-4581-4242-96e7-807ca649c25d" />
 
