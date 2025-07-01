@@ -42,12 +42,25 @@ dotnet build
 dotnet run
 ```
 
+### Database
+```bash
+psql -U postgres
+CREATE USER testuser WITH PASSWORD 'testpass';
+CREATE DATABASE your_db;
+GRANT ALL PRIVILEGES ON DATABASE your_db TO testuser;
+```
+
+
 ### Frontend
 ```bash
 cd frontend-web
 npm i #"npm ci" in prod
 npm run build #prod
 npm run dev #"npm run preview" in prod
+```
+### k8s
+```bash
+temp
 ```
 
 ## Démarrage
