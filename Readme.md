@@ -9,6 +9,87 @@
 # Pourquoi ce Projet ?
 Tout simplement car c'est une architecture intéressante à coder, qui se démarque des usuels blogs / boutiques en ligne. La performance est aussi demandée et l'optimisation est nécessaire nativement dans le projet. C'est pour ca que J'utilise ASP.NET et Svelte 2 des meilleurs Frameworks Web en termes de performances pures.
 
+## 🚀 Installation et Utilisation du CLI LibreScript
+
+### Installation Rapide
+
+1. **Cloner le projet :**
+```bash
+git clone https://github.com/intel1337/LibreScript.git
+```
+
+2. **Naviguer dans le répertoire :**
+```bash
+cd LibreScript
+```
+
+3. **Rendre les scripts exécutables :**
+```bash
+chmod +x LibreScriptBootstrap.sh
+chmod +x deploy.sh
+chmod +x cleanup.sh
+```
+
+4. **Configurer l'alias global (optionnel) :**
+```bash
+# Le script configure automatiquement l'alias pour bash et zsh
+./LibreScriptBootstrap.sh
+```
+
+### Utilisation du CLI
+
+Une fois installé, vous pouvez utiliser les commandes suivantes :
+
+#### **LibreScript CLI Principal**
+```bash
+# Depuis le répertoire du projet
+./LibreScriptBootstrap.sh
+
+# Ou si l'alias est configuré, depuis n'importe où
+librescript
+```
+
+**Fonctionnalités du CLI :**
+- ✅ Affiche les informations système
+- ✅ Configure l'environnement automatiquement
+- ✅ Installe les dépendances nécessaires
+- ✅ Build le projet .NET
+- ✅ Configure l'alias global
+
+#### **Déploiement Kubernetes**
+```bash
+# Déploiement complet sur minikube/kubernetes
+./deploy.sh
+
+# Nettoyage des ressources kubernetes
+./cleanup.sh
+```
+
+#### **Options disponibles**
+```bash
+librescript --clean    # Nettoie l'environnement
+librescript --log      # Affiche les logs de l'environnement  
+librescript            # Démarre l'environnement complet
+```
+
+### Prérequis
+
+- Git
+- Docker & Docker Desktop
+- Kubernetes (minikube recommandé)
+- .NET SDK 9.0
+- Node.js 20+
+
+### Démarrage Rapide
+
+```bash
+# Installation en une commande
+git clone https://github.com/intel1337/LibreScript.git && \
+cd LibreScript && \
+chmod +x *.sh && \
+./LibreScriptBootstrap.sh
+```
+
 ## Architecture du Projet
 
 ### Backend (.NET)
@@ -140,6 +221,108 @@ Librescript/
 - **Caching** : Mise en cache à plusieurs niveaux pour optimiser les performances
 - **Monitoring** : Outils de surveillance en temps réel pour détecter et résoudre les goulots d'étranglement
 
+
+## 🏭 Stack de Production et Déploiement
+
+### Architecture de Production
+
+LibreScript est conçu pour une mise en production robuste et scalable avec une architecture conteneurisée complète :
+
+#### **🔧 Technologies de Production**
+
+**Backend (.NET 9.0)**
+- **Runtime** : ASP.NET Core avec support natif des conteneurs
+- **Base de données** : PostgreSQL 16 avec volumes persistants
+- **ORM** : Entity Framework Core avec optimisations de production
+- **Sécurité** : JWT Bearer Authentication + Rate Limiting
+- **Health Checks** : Endpoints dédiés pour Kubernetes probes
+
+**Frontend (Svelte + nginx)**
+- **Framework** : SvelteKit avec adapter-static pour optimisation maximale
+- **Serveur web** : nginx alpine avec configuration SPA
+- **Build** : Compilation statique pour des performances optimales
+- **Caching** : Headers de cache optimisés pour les assets statiques
+
+**Infrastructure**
+- **Conteneurisation** : Docker multi-stage builds pour des images optimisées
+- **Orchestration** : Kubernetes avec manifests production-ready
+- **Networking** : Services ClusterIP internes + NodePort pour l'exposition
+- **Persistance** : PersistentVolumeClaim pour la base de données
+- **Monitoring** : Health checks et readiness probes
+
+#### **🚀 Processus de Déploiement**
+
+**1. Containerisation**
+```bash
+# Images optimisées avec multi-stage builds
+docker build -f k8s/db/Dockerfile -t librescript-postgres:latest ./k8s/db/
+docker build -f k8s/back/Dockerfile -t librescript-backend:latest .
+docker build -f k8s/front/Dockerfile -t librescript-frontend:latest .
+```
+
+**2. Déploiement Kubernetes**
+```bash
+# Déploiement automatisé avec scripts
+./deploy.sh  # Deploy complet
+./cleanup.sh # Nettoyage des ressources
+```
+
+**3. Configuration de Production**
+
+**PostgreSQL** :
+- Volume persistant 5Gi
+- Configuration optimisée pour la charge
+- Scripts d'initialisation automatiques
+- Backup et restore intégrés
+
+**Backend API** :
+- 2 répliques pour haute disponibilité
+- Resources limits : 512Mi RAM, 500m CPU
+- Health checks sur `/api/health` et `/api/health/ready`
+- Variables d'environnement sécurisées
+
+**Frontend** :
+- 2 répliques nginx pour distribution de charge
+- Configuration SPA avec fallback sur index.html
+- Assets cachés avec headers optimisés
+- Taille d'image réduite (~53MB)
+
+#### **📊 Métriques de Performance**
+
+- **Temps de build** : ~2-3 minutes pour la stack complète
+- **Taille des images** :
+  - Frontend : 53.5MB (nginx + static files)
+  - Backend : 297MB (.NET runtime optimisé)
+  - Database : 457MB (PostgreSQL 16)
+- **Ressources minimales** : 1GB RAM, 2 CPU cores
+- **Scalabilité** : Support natif horizontal et vertical
+
+#### **🔒 Sécurité de Production**
+
+- **HTTPS** : Prêt pour reverse proxy (nginx/traefik)
+- **Secrets** : Variables d'environnement Kubernetes
+- **Network Policies** : Isolation des services
+- **Image Security** : Images basées sur Alpine Linux
+- **Health Monitoring** : Surveillance continue des services
+
+#### **🛠 Outils d'Administration**
+
+```bash
+# Monitoring en temps réel
+kubectl get pods
+kubectl logs -l app=backend
+minikube dashboard
+
+# Gestion des services
+minikube service frontend-service-external  # Accès frontend
+minikube service backend-service-external   # Accès API
+kubectl port-forward svc/postgres-service 5432:5432  # Accès DB
+
+# Mise à jour rolling
+kubectl set image deployment/backend-deployment backend=librescript-backend:v2
+```
+
+Cette architecture garantit une **haute disponibilité**, une **scalabilité horizontale** et une **maintenance simplifiée** pour un environnement de production robuste.
 
 ## Contribution
 
