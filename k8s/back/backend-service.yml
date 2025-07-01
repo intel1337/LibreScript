@@ -29,5 +29,5 @@ spec:
     - protocol: TCP
       port: 5028
       targetPort: 5028
-      nodePort: 30028
+      nodePort: 30001
   type: NodePort
