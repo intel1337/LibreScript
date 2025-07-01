@@ -164,7 +164,7 @@ docker run -d --name librescript-front -p 8080:80 librescript-frontend
 ```
 > k8s Deployment
 ```bash
-x
+librescript --log / ./LibreScriptBootstrap
 ```
 
 ## Dev Startup
