@@ -60,7 +60,7 @@ npm run dev #"npm run preview" in prod
 ```
 ### k8s
 > Build
-```docker
+```bash
 # PATH user@bash/Users/your_user/your_folder/LibreScript/$
 
 docker build -f k8s/db/Dockerfile -t librescript-postgres ./k8s/db/
@@ -68,7 +68,7 @@ docker build -f k8s/back/Dockerfile -t librescript-backend .
 docker build -f k8s/front/Dockerfile -t librescript-frontend .
 ```
 > Run
-```docker
+```bash
 docker run -d \
   --name librescript-db \
   -p 5432:5432 \
@@ -79,8 +79,12 @@ docker run -d \
 docker run -p 5028:5028 librescript-backend
 docker run -d --name librescript-front -p 8080:80 librescript-frontend
 ```
+> k8s Deployment
+```bash
+x
+```
 
-## Démarrage
+## Démarrage Dev
 
 ### Backend
 ```bash
