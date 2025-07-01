@@ -2,117 +2,118 @@
 
 # LibreScript
 
-### LibreScript est une application web / de bureau moderne développée avec une architecture full-stack, combinant un backend .NET et un frontend Svelte.
+### LibreScript is a modern web/desktop application developed with a full-stack architecture, combining a .NET backend and a Svelte frontend.
 
 <img width="1458" alt="image" src="https://github.com/user-attachments/assets/0a017160-2046-45c7-ba55-efa6cd200d8d" />
 
-# Pourquoi ce Projet ?
-Tout simplement car c'est une architecture intéressante à coder, qui se démarque des usuels blogs / boutiques en ligne. La performance est aussi demandée et l'optimisation est nécessaire nativement dans le projet. C'est pour ca que J'utilise ASP.NET et Svelte 2 des meilleurs Frameworks Web en termes de performances pures.
+# Why This Project?
+Simply because it's an interesting architecture to code, which stands out from the usual blogs/online stores. Performance is also required and optimization is necessary natively in the project. That's why I use ASP.NET and Svelte 2 of the best Web Frameworks in terms of pure performance.
 
-## 🚀 Installation et Utilisation du CLI LibreScript
+## 🚀 LibreScript CLI Installation and Usage
 
-### Installation Rapide
+### Quick Installation
 
-1. **Cloner le projet :**
+1. **Clone the project:**
 ```bash
 git clone https://github.com/intel1337/LibreScript.git
 ```
 
-2. **Naviguer dans le répertoire :**
+2. **Navigate to the directory:**
 ```bash
 cd LibreScript
-# Modifier les Variables d'environnements dans backend-api/appsettings.json et dans frontend-web/src/lib/config.js
+# Modify environment variables in backend-api/appsettings.json and in frontend-web/src/lib/config.js
 ```
 
-3. **Rendre les scripts exécutables :**
+3. **Make scripts executable:**
 ```bash
 chmod +x LibreScriptBootstrap.sh
 chmod +x deploy.sh
 chmod +x cleanup.sh
 ```
 
-4. **Configurer l'alias global (optionnel) :**
+4. **Configure global alias (optional):**
 ```bash
-# Le script configure automatiquement l'alias pour bash et zsh
+# The script automatically configures the alias for bash and zsh
 ./LibreScriptBootstrap.sh
 ```
 
-### Utilisation du CLI
+### CLI Usage
 
-Une fois installé, vous pouvez utiliser les commandes suivantes :
+Once installed, you can use the following commands:
 
-#### **LibreScript CLI Principal**
+#### **Main LibreScript CLI**
 ```bash
-# Depuis le répertoire du projet
+# From the project directory
 ./LibreScriptBootstrap.sh
 
-# Ou si vous avez utilisé le setup.sh, depuis n'importe où
+# Or if you used setup.sh, from anywhere
 librescript
 ```
 
-**Fonctionnalités du CLI :**
-- ✅ Affiche les informations système
-- ✅ Configure l'environnement automatiquement
-- ✅ Installe les dépendances nécessaires
-- ✅ Build le projet .NET
-- ✅ Configure l'alias global
+**CLI Features:**
+- ✅ Displays system information
+- ✅ Configures environment automatically
+- ✅ Installs necessary dependencies
+- ✅ Builds the .NET project
+- ✅ Configures global alias
 
-#### **Déploiement Kubernetes**
+#### **Kubernetes Deployment**
 ```bash
-# Déploiement complet sur minikube/kubernetes
+# Complete deployment on minikube/kubernetes
 librescript --log
 
-# Nettoyage des ressources kubernetes
+# Cleanup kubernetes resources
 librescript --clean
 ```
 
-#### **Options disponibles**
+#### **Available options**
 ```bash
-librescript --clean    # Nettoie l'environnement
-librescript --log      # Affiche les logs de l'environnement  
-librescript            # Démarre l'environnement complet
+librescript --clean    # Cleans the environment
+librescript --log      # Shows environment logs  
+librescript            # Starts the complete environment
 ```
 
-### Prérequis
+### Prerequisites
 
 - Git
 - Docker & Docker Desktop
-- Kubernetes (minikube recommandé)
+- Kubernetes (minikube recommended)
 - .NET SDK 9.0
 - Node.js 20+
 
-### Démarrage Rapide
+### Quick Start
 
 ```bash
-# Installation en une commande
+# One-command installation
 git clone https://github.com/intel1337/LibreScript.git && \
 cd LibreScript && \
 chmod +x *.sh && \
 ./LibreScriptBootstrap.sh
 ```
 
-## Architecture du Projet
+## Project Architecture
 
 ### Backend (.NET)
-Le backend est développé en C# avec .NET et comprend :
-- Une API RESTful
-- Une base de données avec Entity Framework Core
-- Des migrations pour la gestion du schéma de base de données
-- Une configuration Docker pour le déploiement
-- Serveur SMTP via Gmail
+The backend is developed in C# with .NET and includes:
+- A RESTful API
+- A database with Entity Framework Core
+- Migrations for database schema management
+- Docker configuration for deployment
+- SMTP server via Gmail
+
 ### Frontend (Svelte)
-Le frontend est développé avec Svelte et comprend :
-- Une interface utilisateur moderne et réactive
-- Une Intégration Web / Web Mobile
-- Une configuration de build optimisée
-- Des outils de développement modernes (ESLint, Vite, prettier)
+The frontend is developed with Svelte and includes:
+- A modern and reactive user interface
+- Web / Web Mobile integration
+- Optimized build configuration
+- Modern development tools (ESLint, Vite, prettier)
 
-## Prérequis
+## Prerequisites
 
-- .NET SDK 8.0 ou supérieur
-- Node.js 18 ou supérieur
-- Docker (optionnel, pour le déploiement)
-- Kubernetes (optionnel, pour l'orchestration)
+- .NET SDK 8.0 or higher
+- Node.js 18 or higher
+- Docker (optional, for deployment)
+- Kubernetes (optional, for orchestration)
 
 ## Installation
 
@@ -132,7 +133,6 @@ CREATE DATABASE your_db;
 GRANT ALL PRIVILEGES ON DATABASE your_db TO testuser;
 ```
 
-
 ### Frontend
 ```bash
 cd frontend-web
@@ -140,6 +140,7 @@ npm i #"npm ci" in prod
 npm run build #prod
 npm run dev #"npm run preview" in prod
 ```
+
 ### k8s
 > Build
 ```bash
@@ -166,7 +167,7 @@ docker run -d --name librescript-front -p 8080:80 librescript-frontend
 x
 ```
 
-## Démarrage Dev
+## Dev Startup
 
 ### Backend
 ```bash
@@ -181,149 +182,295 @@ cd frontend-web
 npm run preview
 ```
 
-## Déploiement
+## Deployment
 
 ### Docker
-Le projet inclut des configurations Docker pour le déploiement :
-- `Dockerfile` pour le backend
-- Configuration Kubernetes dans le dossier `k8s`
+The project includes Docker configurations for deployment:
+- `Dockerfile` for the backend
+- Kubernetes configuration in the `k8s` folder
 
 ### CI/CD
-Le projet inclut des configurations GitHub Actions pour l'intégration et le déploiement continus.
+The project includes GitHub Actions configurations for continuous integration and deployment.
+
 ```
 Librescript/
     backend-api/
-    ├── Controllers/          # Contrôleurs API
-    ├── Models/              # Modèles de données (User.cs, Post.cs, etc.)
-    ├── Data/                # Contexte de base de données
-    ├── Migrations/          # Migrations EF Core
-    ├── Services/            # Services métier (Mail, Verification)
-    ├── Tests/               # Tests unitaires
-    └── [fichiers config]    # Program.cs, .csproj, appsettings.json
+    ├── Controllers/          # API Controllers
+    ├── Models/              # Data models (User.cs, Post.cs, etc.)
+    ├── Data/                # Database context
+    ├── Migrations/          # EF Core migrations
+    ├── Services/            # Business services (Mail, Verification)
+    ├── Tests/               # Unit tests
+    └── [config files]       # Program.cs, .csproj, appsettings.json
 ```
-## Choix de la Stack Technique
 
-### Pourquoi .NET pour le Backend ?
-- **Performance et Scalabilité** : .NET est reconnu pour ses performances exceptionnelles et sa capacité à gérer des charges élevées, crucial pour un forum avec de nombreux utilisateurs simultanés
-- **Entity Framework Core** : Offre une gestion efficace des données avec des capacités de mise en cache avancées et une optimisation des requêtes
-- **Support natif de l'asynchrone** : Permet de gérer efficacement les opérations concurrentes et d'optimiser l'utilisation des ressources
-- **Sécurité robuste** : Intégration native avec des fonctionnalités de sécurité avancées pour protéger les données des utilisateurs
-- **Conteneurisation** : Support natif de Docker et Kubernetes pour une scalabilité horizontale facile
+## Technical Stack Choice
 
-### Pourquoi Svelte pour le Frontend ?
-- **Performance** : Svelte compile le code en JavaScript vanilla ultra-optimisé, offrant des performances supérieures aux frameworks traditionnels
-- **Taille réduite** : Le bundle final est plus léger, ce qui améliore les temps de chargement et l'expérience utilisateur
-- **Réactivité** : Gestion efficace des mises à jour du DOM, cruciale pour un forum avec des mises à jour en temps réel
-- **SEO-friendly** : Facilite l'indexation du contenu du forum par les moteurs de recherche
+### Why .NET for Backend?
+- **Performance and Scalability**: .NET is recognized for its exceptional performance and ability to handle high loads, crucial for a forum with many simultaneous users
+- **Entity Framework Core**: Offers efficient data management with advanced caching capabilities and query optimization
+- **Native async support**: Allows efficient handling of concurrent operations and optimizes resource usage
+- **Robust security**: Native integration with advanced security features to protect user data
+- **Containerization**: Native support for Docker and Kubernetes for easy horizontal scalability
 
-### Architecture Scalable
-- **Microservices** : Architecture modulaire permettant une scalabilité indépendante des composants
-- **Load Balancing** : Distribution intelligente de la charge entre les serveurs
-- **Caching** : Mise en cache à plusieurs niveaux pour optimiser les performances
-- **Monitoring** : Outils de surveillance en temps réel pour détecter et résoudre les goulots d'étranglement
+### Why Svelte for Frontend?
+- **Performance**: Svelte compiles code into ultra-optimized vanilla JavaScript, offering superior performance to traditional frameworks
+- **Reduced size**: The final bundle is lighter, improving loading times and user experience
+- **Reactivity**: Efficient DOM update management, crucial for a forum with real-time updates
+- **SEO-friendly**: Facilitates forum content indexing by search engines
 
+### Scalable Architecture
+- **Microservices**: Modular architecture allowing independent component scalability
+- **Load Balancing**: Intelligent load distribution between servers
+- **Caching**: Multi-level caching to optimize performance
+- **Monitoring**: Real-time monitoring tools to detect and resolve bottlenecks
 
-## 🏭 Stack de Production et Déploiement
+## 🏭 Production Stack and Deployment
 
-### Architecture de Production
+### Production Architecture
 
-LibreScript est conçu pour une mise en production robuste et scalable avec une architecture conteneurisée complète :
+LibreScript is designed for robust and scalable production deployment with a complete containerized architecture:
 
-#### **🔧 Technologies de Production**
+#### **🔧 Production Technologies**
 
 **Backend (.NET 9.0)**
-- **Runtime** : ASP.NET Core avec support natif des conteneurs
-- **Base de données** : PostgreSQL 16 avec volumes persistants
-- **ORM** : Entity Framework Core avec optimisations de production
-- **Sécurité** : JWT Bearer Authentication + Rate Limiting
-- **Health Checks** : Endpoints dédiés pour Kubernetes probes
+- **Runtime**: ASP.NET Core with native container support
+- **Database**: PostgreSQL 16 with persistent volumes
+- **ORM**: Entity Framework Core with production optimizations
+- **Security**: JWT Bearer Authentication + Rate Limiting
+- **Health Checks**: Dedicated endpoints for Kubernetes probes
 
 **Frontend (Svelte + nginx)**
-- **Framework** : SvelteKit avec adapter-static pour optimisation maximale
-- **Serveur web** : nginx alpine avec configuration SPA
-- **Build** : Compilation statique pour des performances optimales
-- **Caching** : Headers de cache optimisés pour les assets statiques
+- **Framework**: SvelteKit with adapter-static for maximum optimization
+- **Web server**: nginx alpine with SPA configuration
+- **Build**: Static compilation for optimal performance
+- **Caching**: Optimized cache headers for static assets
 
 **Infrastructure**
-- **Conteneurisation** : Docker multi-stage builds pour des images optimisées
-- **Orchestration** : Kubernetes avec manifests production-ready
-- **Networking** : Services ClusterIP internes + NodePort pour l'exposition
-- **Persistance** : PersistentVolumeClaim pour la base de données
-- **Monitoring** : Health checks et readiness probes
+- **Containerization**: Docker multi-stage builds for optimized images
+- **Orchestration**: Kubernetes with production-ready manifests
+- **Networking**: Internal ClusterIP services + NodePort for exposure
+- **Persistence**: PersistentVolumeClaim for database
+- **Monitoring**: Health checks and readiness probes
 
-#### **🚀 Processus de Déploiement**
+#### **🚀 Deployment Process**
 
-**1. Containerisation**
+**1. Containerization**
 ```bash
-# Images optimisées avec multi-stage builds
+# Optimized images with multi-stage builds
 docker build -f k8s/db/Dockerfile -t librescript-postgres:latest ./k8s/db/
 docker build -f k8s/back/Dockerfile -t librescript-backend:latest .
 docker build -f k8s/front/Dockerfile -t librescript-frontend:latest .
 ```
 
-**2. Déploiement Kubernetes**
+**2. Kubernetes Deployment**
 ```bash
-# Déploiement automatisé avec scripts
-./deploy.sh  # Deploy complet
-./cleanup.sh # Nettoyage des ressources
+# Automated deployment with scripts
+./deploy.sh  # Complete deployment
+./cleanup.sh # Resource cleanup
 ```
 
-**3. Configuration de Production**
+**3. Production Configuration**
 
-**PostgreSQL** :
-- Volume persistant 5Gi
-- Configuration optimisée pour la charge
-- Scripts d'initialisation automatiques
-- Backup et restore intégrés
+**PostgreSQL**:
+- 5Gi persistent volume
+- Load-optimized configuration
+- Automatic initialization scripts
+- Integrated backup and restore
 
-**Backend API** :
-- 2 répliques pour haute disponibilité
-- Resources limits : 512Mi RAM, 500m CPU
-- Health checks sur `/api/health` et `/api/health/ready`
-- Variables d'environnement sécurisées
+**Backend API**:
+- 2 replicas for high availability
+- Resource limits: 512Mi RAM, 500m CPU
+- Health checks on `/api/health` and `/api/health/ready`
+- Secure environment variables
 
-**Frontend** :
-- 2 répliques nginx pour distribution de charge
-- Configuration SPA avec fallback sur index.html
-- Assets cachés avec headers optimisés
-- Taille d'image réduite (~53MB)
+**Frontend**:
+- 2 nginx replicas for load distribution
+- SPA configuration with fallback to index.html
+- Cached assets with optimized headers
+- Reduced image size (~53MB)
 
-#### **📊 Métriques de Performance**
+#### **📊 Performance Metrics**
 
-- **Temps de build** : ~2-3 minutes pour la stack complète
-- **Taille des images** :
-  - Frontend : 53.5MB (nginx + static files)
-  - Backend : 297MB (.NET runtime optimisé)
-  - Database : 457MB (PostgreSQL 16)
-- **Ressources minimales** : 1GB RAM, 2 CPU cores
-- **Scalabilité** : Support natif horizontal et vertical
+- **Build time**: ~2-3 minutes for complete stack
+- **Image sizes**:
+  - Frontend: 53.5MB (nginx + static files)
+  - Backend: 297MB (optimized .NET runtime)
+  - Database: 457MB (PostgreSQL 16)
+- **Minimum resources**: 1GB RAM, 2 CPU cores
+- **Scalability**: Native horizontal and vertical support
 
-#### **🔒 Sécurité de Production**
+#### **🔒 Production Security**
 
-- **HTTPS** : Prêt pour reverse proxy (nginx/traefik)
-- **Secrets** : Variables d'environnement Kubernetes
-- **Network Policies** : Isolation des services
-- **Image Security** : Images basées sur Alpine Linux
-- **Health Monitoring** : Surveillance continue des services
+- **HTTPS**: Ready for reverse proxy (nginx/traefik)
+- **Secrets**: Kubernetes environment variables
+- **Network Policies**: Service isolation
+- **Image Security**: Images based on Alpine Linux
+- **Health Monitoring**: Continuous service monitoring
 
-#### **🛠 Outils d'Administration**
+#### **🛠 Administration Tools**
 
 ```bash
-# Monitoring en temps réel
+# Real-time monitoring
 kubectl get pods
 kubectl logs -l app=backend
 minikube dashboard
 
-# Gestion des services
-minikube service frontend-service-external  # Accès frontend
-minikube service backend-service-external   # Accès API
-kubectl port-forward svc/postgres-service 5432:5432  # Accès DB
+# Service management
+minikube service frontend-service-external  # Frontend access
+minikube service backend-service-external   # API access
+kubectl port-forward svc/postgres-service 5432:5432  # DB access
 
-# Mise à jour rolling
+# Rolling updates
 kubectl set image deployment/backend-deployment backend=librescript-backend:v2
 ```
 
-Cette architecture garantit une **haute disponibilité**, une **scalabilité horizontale** et une **maintenance simplifiée** pour un environnement de production robuste.
+This architecture guarantees **high availability**, **horizontal scalability** and **simplified maintenance** for a robust production environment.
+
+## 🌐 Web Deployment with Domain Name
+
+### **Option 1: nginx Reverse Proxy (Recommended)**
+
+```bash
+# 1. Expose Kubernetes services on fixed ports
+kubectl patch svc backend-service-external -p '{"spec":{"type":"LoadBalancer"}}'
+kubectl patch svc frontend-service-external -p '{"spec":{"type":"LoadBalancer"}}'
+
+# 2. nginx configuration on your web server
+# /etc/nginx/sites-available/librescript.com
+server {
+    listen 80;
+    server_name librescript.com www.librescript.com;
+    
+    # Frontend (User interface)
+    location / {
+        proxy_pass http://localhost:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    
+    # Backend API
+    location /api/ {
+        proxy_pass http://localhost:3001/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        # CORS headers
+        add_header Access-Control-Allow-Origin *;
+        add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS";
+        add_header Access-Control-Allow-Headers "Content-Type, Authorization";
+    }
+}
+
+# 3. HTTPS with Let's Encrypt
+sudo certbot --nginx -d librescript.com -d www.librescript.com
+```
+
+### **Option 2: Direct Port Forwarding**
+
+```bash
+# On your VPS/Cloud server
+# Directly expose Kubernetes services
+
+# Backend on port 3001
+kubectl port-forward --address 0.0.0.0 service/backend-service 3001:5028 &
+
+# Frontend on port 8080  
+kubectl port-forward --address 0.0.0.0 service/frontend-service 8080:80 &
+
+# DNS configuration
+# A    librescript.com      → YOUR_SERVER_IP
+# A    www.librescript.com  → YOUR_SERVER_IP
+```
+
+### **Option 3: Kubernetes Ingress (Production)**
+
+```yaml
+# ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: librescript-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+  - hosts:
+    - librescript.com
+    secretName: librescript-tls
+  rules:
+  - host: librescript.com
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: backend-service
+            port:
+              number: 5028
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-service
+            port:
+              number: 80
+```
+
+### **Frontend Configuration for Production**
+
+```javascript
+// frontend-web/src/lib/config.js
+export const API_BASE_URL = 'https://librescript.com/api';
+// or
+export const API_BASE_URL = 'https://api.librescript.com';
+```
+
+### **Complete Example - DigitalOcean/AWS**
+
+```bash
+# 1. On your droplet/instance
+git clone https://github.com/username/LibreScript.git
+cd LibreScript
+
+# 2. Install minikube on server
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+
+# 3. Deploy
+./LibreScriptBootstrap.sh
+
+# 4. Expose with public IP
+kubectl port-forward --address 0.0.0.0 service/backend-service 3001:5028 &
+kubectl port-forward --address 0.0.0.0 service/frontend-service 80:80 &
+
+# 5. nginx configuration
+server {
+    listen 80;
+    server_name librescript.com;
+    location / {
+        proxy_pass http://127.0.0.1:80;
+    }
+    location /api/ {
+        proxy_pass http://127.0.0.1:3001/api/;
+    }
+}
+```
+
+### **DNS Configuration**
+```
+Type  Name                Value               TTL
+A     librescript.com     203.0.113.123      300
+A     www.librescript.com 203.0.113.123      300
+```
+
+**The simplest**: Use **Option 1** with nginx reverse proxy - it's the production standard! 🚀
 
 ## 🔧 Troubleshooting & Common Issues
 
@@ -593,14 +740,13 @@ kubectl exec -it deployment/postgres-deployment -- psql -U testuser -d your_db -
 
 ## Contribution
 
-1. Fork le projet
-2. Créez une branche pour votre fonctionnalité
-3. Committez vos changements
-4. Poussez vers la branche
-5. Ouvrez une Pull Request
+1. Fork the project
+2. Create a branch for your feature
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
 
-## Licence
+## License
 
-Ce projet est sous licence libre.
-<img width="800" alt="image" src="https://github.com/user-attachments/assets/a62d90b7-4581-4242-96e7-807ca649c25d" />
-
+This project is under free license.
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/a62d90b7-4581-4242-96e7-807ca649c25d" /> 
