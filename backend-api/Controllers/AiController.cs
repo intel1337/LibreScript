@@ -8,10 +8,14 @@ using System.Threading.Tasks; // Import des tâches asynchrones
 using System.Collections.Generic; // Import async pour await
 using Mistral.SDK.DTOs;
 
-
-
 namespace MonApiBackend.Controllers
 {
+    // DTO pour la requête de question
+    public class QuestionRequest
+    {
+        public string Question { get; set; } = string.Empty;
+    }
+
     [ApiController] // Indique que cette classe est un contrôleur API
     [Route("api/[controller]")] // Définit la route de base pour ce contrôleur en loccurence "api/ai"
     public class AIController : ControllerBase
@@ -32,27 +36,27 @@ namespace MonApiBackend.Controllers
         }
 
         [HttpPost("ask")]
-        public async Task<IActionResult> Ask([FromBody] string question)
+        public async Task<IActionResult> Ask([FromBody] QuestionRequest request)
         {
             try
             {
-                Console.WriteLine($"Question reçue: {question}");
+                Console.WriteLine($"Question reçue: {request?.Question}");
                 
-                if (string.IsNullOrEmpty(question))
+                if (request == null || string.IsNullOrEmpty(request.Question))
                 {
                     return BadRequest(new { error = "La question ne peut pas être vide" });
                 }
 
                 Console.WriteLine("Appel à l'API Mistral...");
-                var request = new ChatCompletionRequest(
+                var mistralRequest = new ChatCompletionRequest(
                     "open-mistral-7b", // Utilisons un modèle public disponible
                     new List<ChatMessage>
                     {
-                        new ChatMessage(ChatMessage.RoleEnum.User, question)
+                        new ChatMessage(ChatMessage.RoleEnum.User, request.Question)
                     }
                 );
 
-                var response = await _client.Completions.GetCompletionAsync(request);
+                var response = await _client.Completions.GetCompletionAsync(mistralRequest);
 
                 Console.WriteLine("Réponse reçue de Mistral");
                 var answer = response.Choices.FirstOrDefault()?.Message.Content;

@@ -691,3 +691,4 @@
 /Users/x1337/Desktop/LibreScript/backend-api/obj/Debug/net9.0/ref/MonApiBackend.dll
 /Users/x1337/Desktop/LibreScript/backend-api/bin/Debug/net9.0/Microsoft.Extensions.AI.Abstractions.dll
 /Users/x1337/Desktop/LibreScript/backend-api/bin/Debug/net9.0/Mistral.SDK.dll
+/Users/x1337/Desktop/LibreScript/backend-api/bin/Debug/net9.0/System.Threading.RateLimiting.dll

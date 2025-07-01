@@ -7,6 +7,8 @@ using System.Security.Claims;
 using System.Text.Json; // Pour JsonElement
 using Microsoft.EntityFrameworkCore; // Pour Include()
 
+using System;
+
 namespace MonApiBackend.Controllers
 {
     [Route("api/[controller]")] // Définit la route de base pour ce contrôleur, ici "api/post"

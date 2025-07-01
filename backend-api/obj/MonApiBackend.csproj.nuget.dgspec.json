@@ -86,6 +86,10 @@
               "target": "Package",
               "version": "[1.1.0, )"
             },
+            "System.Threading.RateLimiting": {
+              "target": "Package",
+              "version": "[9.0.6, )"
+            },
             "xunit": {
               "target": "Package",
               "version": "[2.9.3, )"

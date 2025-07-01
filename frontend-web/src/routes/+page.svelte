@@ -7,6 +7,7 @@
   import { isLoggedIn } from '$lib/services/loginService.js';
   onMount(() => {
     triggerPostsRefresh();
+
   });
 </script>
 

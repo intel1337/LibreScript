@@ -432,23 +432,7 @@
         transform: translateY(-2px);
     }
 
-    .tags {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        justify-content: center;
-        transition: 0.5s ease;
-    }
-
-    .tag {
-        background: #f0f0f0;
-        color: #333;
-        border-radius: 6px;
-        padding: 4px 12px;
-        font-size: 0.95rem;
-        cursor: pointer;
-        user-select: none;
-    }
+   
 
     .header-bottom {
         display: flex;
@@ -644,14 +628,7 @@
             padding: 12px;
         }
 
-        .tags {
-            justify-content: flex-start;
-        }
-
-        .tag {
-            font-size: 0.85rem;
-            padding: 3px 8px;
-        }
+        
 
         /* Switch to mobile card view */
         .desktop-view {

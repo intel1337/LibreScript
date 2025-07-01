@@ -18,6 +18,7 @@
           "Npgsql": "9.0.3",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "9.0.4",
           "Npgsql.EntityFrameworkCore.PostgreSQL.Design": "1.1.0",
+          "System.Threading.RateLimiting": "9.0.6",
           "xunit": "2.9.3",
           "xunit.runner.visualstudio": "3.1.1"
         },
@@ -1656,6 +1657,14 @@
         }
       },
       "System.Threading.Channels/7.0.0": {},
+      "System.Threading.RateLimiting/9.0.6": {
+        "runtime": {
+          "lib/net9.0/System.Threading.RateLimiting.dll": {
+            "assemblyVersion": "9.0.0.0",
+            "fileVersion": "9.0.625.26613"
+          }
+        }
+      },
       "System.Threading.Tasks/4.3.0": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "1.1.0",
@@ -2675,6 +2684,13 @@
       "sha512": "sha512-qmeeYNROMsONF6ndEZcIQ+VxR4Q/TX/7uIVLJqtwIWL7dDWeh0l1UIqgo4wYyjG//5lUNhwkLDSFl+pAWO6oiA==",
       "path": "system.threading.channels/7.0.0",
       "hashPath": "system.threading.channels.7.0.0.nupkg.sha512"
+    },
+    "System.Threading.RateLimiting/9.0.6": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-LIK2Db1D4GL15IQRVSUpFm2OugISf735i5vxXaAe/cmgBtnYCaoECrLaTLQvxNZLvMqnJe1CUWvptNvd179h4w==",
+      "path": "system.threading.ratelimiting/9.0.6",
+      "hashPath": "system.threading.ratelimiting.9.0.6.nupkg.sha512"
     },
     "System.Threading.Tasks/4.3.0": {
       "type": "package",

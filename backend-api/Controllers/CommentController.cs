@@ -7,6 +7,8 @@ using System.Threading.Tasks; // Pour l'asynchrone
 using Microsoft.EntityFrameworkCore; // Pour l'ORM Entity Framework Core
 using System.Text.Json; // Pour JSON parsing
 
+using System;
+
 namespace MonApiBackend.Controllers
 {
     [ApiController] // Indique que cette classe est un contrôleur API

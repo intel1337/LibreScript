@@ -24,7 +24,7 @@
     }
   });
 </script>
-
+<title>LibreScript</title>
 <div class="layout-container">
     <Header />
 

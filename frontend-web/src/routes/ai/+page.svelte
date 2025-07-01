@@ -88,10 +88,7 @@
 
 <div class="ai-container">
     <div class="hero-container">
-        <h1><strong>LibreScript AI</strong></h1>
-        <p>
-            LibreScript AI is a Generative AI that allows you to generate code using AI.
-        </p>
+
     </div>
     {#if error}
         <div class="ai-error-message">

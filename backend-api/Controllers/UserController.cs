@@ -9,6 +9,8 @@ using System.Text.Json; // Pour JsonElement
 using Microsoft.Extensions.Configuration; // Ajout pour IConfiguration
 using Microsoft.EntityFrameworkCore; // Pour async operations
 
+using System;
+
 namespace MonApiBackend.Controllers
 {
     public class LoginRequest
