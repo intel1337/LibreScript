@@ -21,6 +21,7 @@ git clone https://github.com/intel1337/LibreScript.git
 2. **Naviguer dans le répertoire :**
 ```bash
 cd LibreScript
+# Modifier les Variables d'environnements dans backend-api/appsettings.json et dans frontend-web/src/lib/config.js
 ```
 
 3. **Rendre les scripts exécutables :**
@@ -45,7 +46,7 @@ Une fois installé, vous pouvez utiliser les commandes suivantes :
 # Depuis le répertoire du projet
 ./LibreScriptBootstrap.sh
 
-# Ou si l'alias est configuré, depuis n'importe où
+# Ou si vous avez utilisé le setup.sh, depuis n'importe où
 librescript
 ```
 
@@ -59,10 +60,10 @@ librescript
 #### **Déploiement Kubernetes**
 ```bash
 # Déploiement complet sur minikube/kubernetes
-./deploy.sh
+librescript --log
 
 # Nettoyage des ressources kubernetes
-./cleanup.sh
+librescript --clean
 ```
 
 #### **Options disponibles**
