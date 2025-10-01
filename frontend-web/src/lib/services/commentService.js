@@ -59,7 +59,7 @@ class CommentService extends BaseService {
      */
     async postReply(parentCommentId, reply) {
         try {
-            return await this.post('/api/comment/' + parentCommentId + '/reply', reply);
+            return await this.post('/api/comment/' + parentCommentId + '/replies', reply);
         } catch (error) {
             this.logError('Failed to post reply to comment ' + parentCommentId, error);
             this.handleAuthError(error);
