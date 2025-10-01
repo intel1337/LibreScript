@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/Users/x1337/Desktop/LibreScript/backend-api/MonApiBackend.csproj": {}
+    "/Users/tae/Plateforme/LibreScript/backend-api/MonApiBackend.csproj": {}
   },
   "projects": {
-    "/Users/x1337/Desktop/LibreScript/backend-api/MonApiBackend.csproj": {
+    "/Users/tae/Plateforme/LibreScript/backend-api/MonApiBackend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/x1337/Desktop/LibreScript/backend-api/MonApiBackend.csproj",
+        "projectUniqueName": "/Users/tae/Plateforme/LibreScript/backend-api/MonApiBackend.csproj",
         "projectName": "MonApiBackend",
-        "projectPath": "/Users/x1337/Desktop/LibreScript/backend-api/MonApiBackend.csproj",
-        "packagesPath": "/Users/x1337/.nuget/packages/",
-        "outputPath": "/Users/x1337/Desktop/LibreScript/backend-api/obj/",
+        "projectPath": "/Users/tae/Plateforme/LibreScript/backend-api/MonApiBackend.csproj",
+        "packagesPath": "/Users/tae/.nuget/packages/",
+        "outputPath": "/Users/tae/Plateforme/LibreScript/backend-api/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/x1337/.nuget/NuGet/NuGet.Config"
+          "/Users/tae/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
@@ -120,7 +120,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.300/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.305/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
