@@ -86,9 +86,9 @@ librescript            # Starts the complete environment
 ```bash
 # One-command installation
 git clone https://github.com/intel1337/LibreScript.git && \
-cd LibreScript && \
-chmod +x *.sh && \
-./LibreScriptBootstrap.sh
+cd LibreScript
+cd frontend-web && npm run build && npm run preview
+cd backend && dotnet restore && dotnet run
 ```
 
 ## Project Architecture
@@ -110,7 +110,7 @@ The frontend is developed with Svelte and includes:
 
 ## Prerequisites
 
-- .NET SDK 8.0 or higher
+- .NET SDK 9.0 or higher
 - Node.js 18 or higher
 - Docker (optional, for deployment)
 - Kubernetes (optional, for orchestration)
@@ -192,18 +192,6 @@ The project includes Docker configurations for deployment:
 ### CI/CD
 The project includes GitHub Actions configurations for continuous integration and deployment.
 
-```
-Librescript/
-    backend-api/
-    ├── Controllers/          # API Controllers
-    ├── Models/              # Data models (User.cs, Post.cs, etc.)
-    ├── Data/                # Database context
-    ├── Migrations/          # EF Core migrations
-    ├── Services/            # Business services (Mail, Verification)
-    ├── Tests/               # Unit tests
-    └── [config files]       # Program.cs, .csproj, appsettings.json
-```
-
 ## Technical Stack Choice
 
 ### Why .NET for Backend?
@@ -225,6 +213,9 @@ Librescript/
 - **Caching**: Multi-level caching to optimize performance
 - **Monitoring**: Real-time monitoring tools to detect and resolve bottlenecks
 
+
+
+## Not Exam needed
 ## 🏭 Production Stack and Deployment
 
 ### Production Architecture
